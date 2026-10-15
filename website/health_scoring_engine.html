@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Empirical Health & Fitness Score Simulator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      background: transparent;
+    }
+    input[type=range]:focus {
+      outline: none;
+    }
+    input[type=range]::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 8px;
+      cursor: pointer;
+      background: #e2e8f0;
+      border-radius: 9999px;
+      transition: background-color 0.2s ease;
+    }
+    .dark input[type=range]::-webkit-slider-runnable-track {
+      background: #334155;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      height: 22px;
+      width: 22px;
+      border-radius: 50%;
+      background: #0ea5e9;
+      cursor: pointer;
+      -webkit-appearance: none;
+      margin-top: -7px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.15), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+      transition: transform 0.1s ease, background-color 0.15s ease;
+      border: 2px solid #ffffff;
+    }
+    input[type=range]::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+      background: #0284c7;
+    }
+    .metric-card {
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    .metric-card:hover {
+      transform: translateY(-2px);
+    }
+    .gauge-circle {
+      transition: stroke-dashoffset 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 min-h-screen flex flex-col font-sans transition-colors duration-200">
+
+  <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur border-b border-slate-200 dark:border-slate-800 sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-sky-500/20">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold text-slate-900 dark:text-white leading-tight">Health & Fitness Empirical Engine</h1>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Calibrated against N=687,701 empirical cohort records</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <span class="text-xs text-slate-500 font-medium hidden sm:inline">Presets:</span>
+        <button onclick="applyPreset('average')" class="px-2.5 py-1.5 text-xs font-medium rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 transition">Dataset Mean</button>
+        <button onclick="applyPreset('sleep_deprived')" class="px-2.5 py-1.5 text-xs font-medium rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:hover:bg-amber-900/50 dark:text-amber-300 transition">Burnout State</button>
+        <button onclick="applyPreset('athlete')" class="px-2.5 py-1.5 text-xs font-medium rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:hover:bg-emerald-900/50 dark:text-emerald-300 transition">High Performance</button>
+        <button onclick="toggleTheme()" class="p-2 ml-1 rounded-lg text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200">
+          <svg id="themeIcon" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      
+      <!-- LEFT COLUMN: Sliders & Controls (7 cols) -->
+      <section class="lg:col-span-7 space-y-6">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+          <div class="flex items-center justify-between mb-4 border-b border-slate-100 dark:border-slate-800 pb-3">
+            <div>
+              <h2 class="text-base font-bold text-slate-900 dark:text-white">Physiological & Activity Inputs</h2>
+              <p class="text-xs text-slate-500">Each parameter maps through an archetype-specific mathematical scoring curve</p>
+            </div>
+            <button onclick="resetSliders()" class="text-xs text-sky-600 hover:text-sky-700 dark:text-sky-400 font-medium">Reset to Mean</button>
+          </div>
+
+          <div id="slidersContainer" class="space-y-5">
+            <!-- Dynamic slider blocks inserted here via JS -->
+          </div>
+        </div>
+
+        <!-- Analytical Explainer Card -->
+        <div class="bg-slate-100 dark:bg-slate-900/60 rounded-2xl p-5 border border-slate-200 dark:border-slate-800">
+          <h3 class="text-sm font-semibold text-slate-900 dark:text-white flex items-center gap-2">
+            <svg class="w-4 h-4 text-sky-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+            Dataset Mathematical Foundation
+          </h3>
+          <ul class="mt-2 text-xs text-slate-600 dark:text-slate-400 space-y-1.5 leading-relaxed">
+            <li><span class="font-semibold text-slate-800 dark:text-slate-200">Optimal Range (Gaussian):</span> Sleep ($7\text{–}8\text{h}$) and BMI ($20\text{–}23$). Overshooting or undershooting penalizes the sub-score exponentially based on variance ($\sigma$).</li>
+            <li><span class="font-semibold text-slate-800 dark:text-slate-200">Higher is Better (Sigmoidal Logistic):</span> Steps ($0\text{–}25\text{k}$) and Endurance ($4\text{–}19$) scale positively with diminishing returns past high volumes.</li>
+            <li><span class="font-semibold text-slate-800 dark:text-slate-200">Lower is Better (Reverse Logistic):</span> Stress and Resting Heart Rate. Scores reward low physiological strain.</li>
+            <li><span class="font-semibold text-slate-800 dark:text-slate-200">Correlated Synergies:</span> When high stress ($>7$) collides with poor sleep ($<6\text{h}$), an additional allostatic penalty is deducted ($r=-0.432$).</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- RIGHT COLUMN: Score Dashboard, Radar Breakdown & Alerts (5 cols) -->
+      <section class="lg:col-span-5 space-y-6 lg:sticky lg:top-20">
+        
+        <!-- Primary Health Score Card -->
+        <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-md">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Composite Health Index</span>
+            <span id="scoreBadge" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-700">Calculating...</span>
+          </div>
+
+          <!-- Gauge and Number -->
+          <div class="flex flex-col items-center justify-center my-4">
+            <div class="relative w-48 h-48 flex items-center justify-center">
+              <svg class="w-full h-full transform -rotate-90" viewBox="0 0 160 160">
+                <!-- Background circle -->
+                <circle cx="80" cy="80" r="70" stroke="currentColor" stroke-width="14" fill="transparent" class="text-slate-100 dark:text-slate-800" />
+                <!-- Dynamic progress circle -->
+                <circle id="scoreGaugeCircle" cx="80" cy="80" r="70" stroke="currentColor" stroke-width="14" fill="transparent"
+                  stroke-dasharray="439.8" stroke-dashoffset="439.8" stroke-linecap="round"
+                  class="gauge-circle text-sky-500 transition-all duration-500" />
+              </svg>
+              <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+                <span id="mainScoreValue" class="text-5xl font-extrabold tracking-tight font-mono text-slate-900 dark:text-white">0</span>
+                <span class="text-xs text-slate-400 font-medium mt-1">OUT OF 100</span>
+              </div>
+            </div>
+            
+            <h3 id="verdictHeadline" class="mt-4 text-base font-bold text-slate-800 dark:text-slate-100">Optimal Baseline</h3>
+            <p id="verdictSubtext" class="text-xs text-slate-500 dark:text-slate-400 text-center max-w-xs mt-1">Balanced physiological parameters with standard recovery margins.</p>
+          </div>
+
+          <!-- Cross-Parameter Synergies / Alerts Box -->
+          <div id="alertsContainer" class="mt-4 space-y-2">
+            <!-- Dynamic warning pills when interaction triggers -->
+          </div>
+        </div>
+
+        <!-- Pillar Sub-Scores Breakdown -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+          <h3 class="text-sm font-bold text-slate-900 dark:text-white mb-4 flex items-center justify-between">
+            <span>Dimension Sub-Scores</span>
+            <span class="text-xs font-normal text-slate-400">Scaled 0 - 100</span>
+          </h3>
+
+          <div id="subScoresList" class="space-y-3.5">
+            <!-- Dynamic subscore progress bars inserted here -->
+          </div>
+        </div>
+
+        <!-- Population Percentile Compare Table -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm text-xs">
+          <h4 class="font-bold text-slate-900 dark:text-white mb-3">Empirical Dataset Percentiles</h4>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left">
+              <thead>
+                <tr class="text-slate-400 border-b border-slate-100 dark:border-slate-800">
+                  <th class="pb-2 font-medium">Metric</th>
+                  <th class="pb-2 font-medium">Your Value</th>
+                  <th class="pb-2 font-medium">Dataset Mean</th>
+                  <th class="pb-2 font-medium text-right">Population %</th>
+                </tr>
+              </thead>
+              <tbody id="percentilesTableBody" class="divide-y divide-slate-100 dark:divide-slate-800/60 font-mono">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+
+  <script>
+    /**
+     * PARAMETER DEFINITIONS CALIBRATED AGAINST health_fitness_dataset.csv
+     * (N = 687,701 rows)
+     */
+    const PARAMETERS = [
+      {
+        id: 'sleep_hours',
+        name: 'Sleep Duration',
+        unit: 'hrs',
+        min: 4.0,
+        max: 11.0,
+        step: 0.1,
+        mean: 7.05,
+        std: 0.97,
+        default: 7.1,
+        weight: 0.20,
+        archetype: 'OPTIMAL_RANGE', // Peak between 7.2 - 8.2 hrs
+        optLow: 7.0,
+        optHigh: 8.2,
+        info: 'Optimal: 7.0 - 8.2 hrs. Strongly correlates with stress (r = -0.43).'
+      },
+      {
+        id: 'stress_level',
+        name: 'Stress Level',
+        unit: '/10',
+        min: 1.0,
+        max: 10.0,
+        step: 0.5,
+        mean: 5.47,
+        std: 1.91,
+        default: 5.5,
+        weight: 0.15,
+        archetype: 'LOWER_IS_BETTER',
+        info: 'Baseline average: 5.47. Lower levels support restorative sleep.'
+      },
+      {
+        id: 'daily_steps',
+        name: 'Daily Steps',
+        unit: 'steps',
+        min: 2000,
+        max: 22000,
+        step: 250,
+        mean: 8628,
+        std: 2055,
+        default: 8600,
+        weight: 0.15,
+        archetype: 'HIGHER_IS_BETTER',
+        info: 'Dataset mean: 8,628 steps. Diminishing returns past 14,000 steps.'
+      },
+      {
+        id: 'resting_heart_rate',
+        name: 'Resting Heart Rate',
+        unit: 'bpm',
+        min: 48,
+        max: 95,
+        step: 1,
+        mean: 70.0,
+        std: 5.07,
+        default: 70,
+        weight: 0.15,
+        archetype: 'LOWER_IS_BETTER',
+        info: 'Population mean: 70 bpm. Elite recovery shows < 60 bpm.'
+      },
+      {
+        id: 'endurance_level',
+        name: 'Endurance Score',
+        unit: 'pts',
+        min: 4.5,
+        max: 18.5,
+        step: 0.1,
+        mean: 9.49,
+        std: 2.25,
+        default: 9.5,
+        weight: 0.15,
+        archetype: 'HIGHER_IS_BETTER',
+        info: 'Mean: 9.49. Strongly tracks workout duration & VO2 max proxy.'
+      },
+      {
+        id: 'bmi',
+        name: 'Body Mass Index',
+        unit: 'kg/m²',
+        min: 16.0,
+        max: 32.0,
+        step: 0.1,
+        mean: 21.66,
+        std: 1.94,
+        default: 21.7,
+        weight: 0.10,
+        archetype: 'OPTIMAL_RANGE',
+        optLow: 19.5,
+        optHigh: 23.5,
+        info: 'Normal adult range: 19.5 - 23.5. Mean: 21.66 in cohort.'
+      },
+      {
+        id: 'hydration_level',
+        name: 'Hydration Intake',
+        unit: 'L',
+        min: 1.0,
+        max: 4.5,
+        step: 0.1,
+        mean: 2.50,
+        std: 0.58,
+        default: 2.5,
+        weight: 0.10,
+        archetype: 'OPTIMAL_RANGE', // Peak between 2.5 - 3.5L
+        optLow: 2.4,
+        optHigh: 3.5,
+        info: 'Dataset mean: 2.50 L/day. Sufficient cellular hydration.'
+      }
+    ];
+
+    // Current State
+    const currentValues = {};
+    PARAMETERS.forEach(p => currentValues[p.id] = p.default);
+
+    /**
+     * Standard Normal Cumulative Distribution Function (Z-score to Percentile)
+     */
+    function normalCDF(z) {
+      const t = 1 / (1 + 0.2316419 * Math.abs(z));
+      const d = 0.3989423 * Math.exp(-z * z / 2);
+      const prob = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))));
+      return z > 0 ? (1 - prob) * 100 : prob * 100;
+    }
+
+    /**
+     * Smooth sigmoid function for diminishing returns
+     */
+    function sigmoid(x, k = 1) {
+      return 1 / (1 + Math.exp(-k * x));
+    }
+
+    /**
+     * Calculates an individual metric's 0-100 score based on its Archetype
+     */
+    function evaluateSubScore(param, val) {
+      switch (param.archetype) {
+        case 'OPTIMAL_RANGE': {
+          // If within the optimal flat zone, maximum 100
+          if (val >= param.optLow && val <= param.optHigh) {
+            return 100;
+          }
+          let delta = 0;
+          if (val < param.optLow) {
+            delta = (param.optLow - val) / param.std;
+          } else {
+            delta = (val - param.optHigh) / param.std;
+          }
+          // Exponential Gaussian drop-off
+          const score = 100 * Math.exp(-0.45 * Math.pow(delta, 1.7));
+          return Math.max(0, Math.min(100, score));
+        }
+
+        case 'HIGHER_IS_BETTER': {
+          // Standardized Z-score relative to dataset mean
+          const z = (val - param.mean) / param.std;
+          // Sigmoid centered at mean (z=0 -> 55 points)
+          // Diminishing returns above +2.5 std deviations
+          const s = 100 * sigmoid(z * 1.15);
+          return Math.max(0, Math.min(100, s));
+        }
+
+        case 'LOWER_IS_BETTER': {
+          // Standardized Z-score inverted relative to dataset mean
+          const z = (param.mean - val) / param.std;
+          // Sigmoid centered at mean (z=0 -> 55 points)
+          const s = 100 * sigmoid(z * 1.15);
+          return Math.max(0, Math.min(100, s));
+        }
+
+        default:
+          return 50;
+      }
+    }
+
+    /**
+     * Evaluates cross-parameter interaction penalties (Synergies)
+     */
+    function evaluateSynergies(vals) {
+      const penalties = [];
+      let totalDeduction = 0;
+
+      // 1. Allostatic Load / Burnout: Sleep Deprivation + High Stress (r = -0.432)
+      if (vals.sleep_hours < 6.2 && vals.stress_level > 6.5) {
+        const sleepSeverity = (6.2 - vals.sleep_hours) / 1.5;
+        const stressSeverity = (vals.stress_level - 6.5) / 3.5;
+        const deduction = Math.min(16, (sleepSeverity * stressSeverity * 14) + 3);
+        totalDeduction += deduction;
+        penalties.push({
+          type: 'danger',
+          title: 'Burnout / Allostatic Overload',
+          description: `Chronic short sleep (${vals.sleep_hours.toFixed(1)}h) paired with elevated stress (${vals.stress_level.toFixed(1)}/10) produces compounded autonomic fatigue.`,
+          deduction: deduction
+        });
+      }
+
+      // 2. Cardiovascular Strain: High Resting HR + Elevated BMI
+      if (vals.resting_heart_rate > 76 && vals.bmi > 24.5) {
+        const deduction = Math.min(10, ((vals.resting_heart_rate - 76) / 10 + (vals.bmi - 24.5) / 3) * 5);
+        totalDeduction += deduction;
+        penalties.push({
+          type: 'warning',
+          title: 'Cardiovascular Vulnerability',
+          description: `Elevated resting pulse (${vals.resting_heart_rate} bpm) combined with high BMI indicates circulatory strain.`,
+          deduction: deduction
+        });
+      }
+
+      // 3. Positive Recovery Synergy: Optimal Sleep + Low Stress
+      if (vals.sleep_hours >= 7.2 && vals.sleep_hours <= 8.5 && vals.stress_level <= 3.5) {
+        const bonus = 4.0;
+        totalDeduction -= bonus; // negative deduction is bonus
+        penalties.push({
+          type: 'success',
+          title: 'Restorative Equilibrium',
+          description: `Deep restorative sleep and low stress create synergistic cellular and mental rejuvenation (+4.0 bonus).`,
+          deduction: -bonus
+        });
+      }
+
+      return { totalDeduction, penalties };
+    }
+
+    function initializeSliders() {
+      const container = document.getElementById('slidersContainer');
+      container.innerHTML = '';
+
+      PARAMETERS.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'metric-card bg-slate-50 dark:bg-slate-800/60 p-4 rounded-xl border border-slate-200/70 dark:border-slate-800/80';
+        card.id = `card_${p.id}`;
+
+        card.innerHTML = `
+          <div class="flex items-center justify-between gap-2 mb-1.5">
+            <div>
+              <label for="input_${p.id}" class="text-sm font-semibold text-slate-800 dark:text-slate-100">${p.name}</label>
+              <p class="text-xs text-slate-400 dark:text-slate-500">${p.info}</p>
+            </div>
+            <div class="text-right">
+              <span id="display_${p.id}" class="font-mono text-base font-bold text-sky-600 dark:text-sky-400">
+                ${p.id === 'daily_steps' ? currentValues[p.id].toLocaleString() : currentValues[p.id]}
+              </span>
+              <span class="text-xs text-slate-500 dark:text-slate-400 ml-0.5">${p.unit}</span>
+            </div>
+          </div>
+
+          <div class="mt-2.5">
+            <input 
+              type="range" 
+              id="input_${p.id}" 
+              min="${p.min}" 
+              max="${p.max}" 
+              step="${p.step}" 
+              value="${currentValues[p.id]}"
+              oninput="onSliderChange('${p.id}', this.value)"
+            />
+          </div>
+
+          <div class="flex justify-between items-center mt-2 text-[11px] text-slate-400 font-mono">
+            <span>Min: ${p.id === 'daily_steps' ? p.min.toLocaleString() : p.min}</span>
+            <span class="text-slate-500 font-sans font-medium">Dataset Mean: ${p.id === 'daily_steps' ? p.mean.toLocaleString() : p.mean}</span>
+            <span>Max: ${p.id === 'daily_steps' ? p.max.toLocaleString() : p.max}</span>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function onSliderChange(id, value) {
+      currentValues[id] = parseFloat(value);
+      const displayElem = document.getElementById(`display_${id}`);
+      if (displayElem) {
+        displayElem.innerText = id === 'daily_steps' 
+          ? Math.round(currentValues[id]).toLocaleString() 
+          : currentValues[id].toFixed(id === 'resting_hr' || id === 'steps' ? 0 : 1);
+      }
+      recalculateAll();
+    }
+
+    function recalculateAll() {
+      // 1. Calculate weighted subscores
+      let weightedBaseScore = 0;
+      const subScoreMap = {};
+      const percentilesMap = {};
+
+      PARAMETERS.forEach(p => {
+        const val = currentValues[p.id];
+        const sub = evaluateSubScore(p, val);
+        subScoreMap[p.id] = sub;
+        weightedBaseScore += sub * p.weight;
+
+        // Calculate Z-Score & Percentile
+        const z = (val - p.mean) / p.std;
+        percentilesMap[p.id] = {
+          z: z,
+          pct: normalCDF(z)
+        };
+      });
+
+      // 2. Evaluate synergies
+      const { totalDeduction, penalties } = evaluateSynergies(currentValues);
+      const finalScore = Math.max(0, Math.min(100, weightedBaseScore - totalDeduction));
+
+      // 3. Update Main Gauge & Display
+      updateMainScoreGauge(finalScore, totalDeduction);
+
+      // 4. Update Pillars
+      updateSubScoresUI(subScoreMap);
+
+      // 5. Update Synergy Alerts
+      updateAlertsUI(penalties);
+
+      // 6. Update Empirical Percentiles Table
+      updatePercentilesTable(percentilesMap);
+    }
+
+    function updateMainScoreGauge(score, penalty) {
+      const circle = document.getElementById('scoreGaugeCircle');
+      const scoreVal = document.getElementById('mainScoreValue');
+      const badge = document.getElementById('scoreBadge');
+      const headline = document.getElementById('verdictHeadline');
+      const subtext = document.getElementById('verdictSubtext');
+
+      const maxOffset = 439.8; // 2 * PI * 70
+      const offset = maxOffset - (score / 100) * maxOffset;
+      circle.style.strokeDashoffset = offset;
+      scoreVal.innerText = score.toFixed(1);
+
+      // Color coding & qualitative verdict
+      let strokeColor = 'text-sky-500';
+      let badgeClass = 'bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-200';
+      let verdictTitle = 'Optimal Health Baseline';
+      let verdictDesc = 'Your habits reflect well-balanced physiological targets with low cardiovascular risk.';
+
+      if (score >= 82) {
+        strokeColor = 'text-emerald-500';
+        badgeClass = 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300';
+        verdictTitle = 'Peak Vitality & High Resilience';
+        verdictDesc = 'Exceptional physical conditioning, restorative rest, and optimal autonomic recovery.';
+      } else if (score >= 65) {
+        strokeColor = 'text-sky-500';
+        badgeClass = 'bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300';
+        verdictTitle = 'Stable Demographic Norm';
+        verdictDesc = 'Closely aligned with the median population cohort. Steady cardiovascular reserve.';
+      } else if (score >= 48) {
+        strokeColor = 'text-amber-500';
+        badgeClass = 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300';
+        verdictTitle = 'Moderate Compromise / Recovery Deficit';
+        verdictDesc = 'Strains detected in stress regulation, sleep duration, or cardiovascular endurance.';
+      } else {
+        strokeColor = 'text-rose-500';
+        badgeClass = 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300';
+        verdictTitle = 'Elevated Risk / Systemic Strain';
+        verdictDesc = 'High allostatic load and sub-optimal biometric markers require immediate behavioral adjustments.';
+      }
+
+      circle.className = `gauge-circle ${strokeColor} transition-all duration-500`;
+      badge.className = `text-xs font-semibold px-2.5 py-1 rounded-full ${badgeClass}`;
+      badge.innerText = `${score >= 70 ? 'Optimal' : score >= 50 ? 'Moderate' : 'Risk'} Score`;
+      headline.innerText = verdictTitle;
+      subtext.innerText = verdictDesc;
+    }
+
+    function updateSubScoresUI(subScores) {
+      const container = document.getElementById('subScoresList');
+      container.innerHTML = '';
+
+      PARAMETERS.forEach(p => {
+        const score = subScores[p.id];
+        let barColor = 'bg-sky-500';
+        if (score >= 75) barColor = 'bg-emerald-500';
+        else if (score < 45) barColor = 'bg-rose-500';
+        else if (score < 65) barColor = 'bg-amber-500';
+
+        const row = document.createElement('div');
+        row.className = 'space-y-1';
+        row.innerHTML = `
+          <div class="flex justify-between items-center text-xs">
+            <span class="font-medium text-slate-700 dark:text-slate-300">${p.name}</span>
+            <span class="font-mono font-bold text-slate-800 dark:text-slate-200">${score.toFixed(0)} / 100</span>
+          </div>
+          <div class="w-full h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+            <div class="${barColor} h-full rounded-full transition-all duration-300" style="width: ${score}%"></div>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function updateAlertsUI(penalties) {
+      const container = document.getElementById('alertsContainer');
+      container.innerHTML = '';
+
+      if (penalties.length === 0) {
+        return;
+      }
+
+      penalties.forEach(alert => {
+        const isDanger = alert.type === 'danger';
+        const isSuccess = alert.type === 'success';
+        const colorClasses = isDanger 
+          ? 'bg-rose-50 border-rose-200 text-rose-900 dark:bg-rose-950/40 dark:border-rose-900/60 dark:text-rose-200'
+          : isSuccess
+          ? 'bg-emerald-50 border-emerald-200 text-emerald-900 dark:bg-emerald-950/40 dark:border-emerald-900/60 dark:text-emerald-200'
+          : 'bg-amber-50 border-amber-200 text-amber-900 dark:bg-amber-950/40 dark:border-amber-900/60 dark:text-amber-200';
+
+        const badgeClasses = isDanger ? 'bg-rose-500' : isSuccess ? 'bg-emerald-500' : 'bg-amber-500';
+
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `p-3 rounded-xl border text-xs ${colorClasses} transition-all duration-200`;
+        alertDiv.innerHTML = `
+          <div class="flex items-center justify-between font-bold mb-1">
+            <div class="flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full ${badgeClasses}"></span>
+              <span>${alert.title}</span>
+            </div>
+            <span>${alert.deduction > 0 ? `-${alert.deduction.toFixed(1)} pts` : `+${Math.abs(alert.deduction).toFixed(1)} pts`}</span>
+          </div>
+          <p class="leading-relaxed opacity-90">${alert.description}</p>
+        `;
+        container.appendChild(alertDiv);
+      });
+    }
+
+    function updatePercentilesTable(percentiles) {
+      const tbody = document.getElementById('percentilesTableBody');
+      tbody.innerHTML = '';
+
+      PARAMETERS.forEach(p => {
+        const val = currentValues[p.id];
+        const pctData = percentiles[p.id];
+        const formattedVal = p.id === 'daily_steps' ? Math.round(val).toLocaleString() : val.toFixed(1);
+        const formattedMean = p.id === 'daily_steps' ? p.mean.toLocaleString() : p.mean.toFixed(1);
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors';
+        tr.innerHTML = `
+          <td class="py-2 text-slate-700 dark:text-slate-300 font-sans font-medium">${p.name}</td>
+          <td class="py-2 text-sky-600 dark:text-sky-400 font-bold">${formattedVal} ${p.unit}</td>
+          <td class="py-2 text-slate-400">${formattedMean}</td>
+          <td class="py-2 text-right ${pctData.pct > 75 ? 'text-emerald-500 font-bold' : pctData.pct < 25 ? 'text-rose-500' : 'text-slate-500'}">
+            ${pctData.pct.toFixed(0)}th %ile
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function applyPreset(name) {
+      if (name === 'average') {
+        PARAMETERS.forEach(p => currentValues[p.id] = p.default);
+      } else if (name === 'sleep_deprived') {
+        currentValues.sleep_hours = 5.0; // bottom 2%
+        currentValues.stress_level = 8.5; // top 5%
+        currentValues.daily_steps = 4200;
+        currentValues.resting_heart_rate = 78;
+        currentValues.endurance_level = 7.1;
+        currentValues.hydration_level = 1.8;
+        currentValues.bmi = 24.2;
+      } else if (name === 'athlete') {
+        currentValues.sleep_hours = 8.2;
+        currentValues.stress_level = 2.0;
+        currentValues.daily_steps = 15500;
+        currentValues.resting_heart_rate = 54;
+        currentValues.endurance_level = 15.2;
+        currentValues.hydration_level = 3.2;
+        currentValues.bmi = 21.2;
+      }
+
+      // Sync inputs
+      PARAMETERS.forEach(p => {
+        const input = document.getElementById(`input_${p.id}`);
+        const display = document.getElementById(`display_${p.id}`);
+        if (input) input.value = currentValues[p.id];
+        if (display) {
+          display.innerText = p.id === 'daily_steps' 
+            ? Math.round(currentValues[p.id]).toLocaleString() 
+            : currentValues[p.id].toFixed(p.id === 'resting_hr' || p.id === 'steps' ? 0 : 1);
+        }
+      });
+
+      recalculateAll();
+    }
+
+    function resetSliders() {
+      applyPreset('average');
+    }
+
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      const icon = document.getElementById('themeIcon');
+      if (isDark) {
+        icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />`;
+      } else {
+        icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />`;
+      }
+    }
+
+    // Auto-detect system preference
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.documentElement.classList.add('dark');
+      toggleTheme();
+      document.documentElement.classList.add('dark');
+    }
+
+    window.onload = function() {
+      initializeSliders();
+      recalculateAll();
+    };
+  </script>
+</body>
+</html>
