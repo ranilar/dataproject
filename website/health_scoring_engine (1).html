@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Empirical Health & Fitness Score Simulator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    input[type=range] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      background: transparent;
+    }
+    input[type=range]:focus {
+      outline: none;
+    }
+    input[type=range]::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 7px;
+      cursor: pointer;
+      background: #e2e8f0;
+      border-radius: 9999px;
+      transition: background-color 0.2s ease;
+    }
+    .dark input[type=range]::-webkit-slider-runnable-track {
+      background: #334155;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      height: 20px;
+      width: 20px;
+      border-radius: 50%;
+      background: #0284c7;
+      cursor: pointer;
+      -webkit-appearance: none;
+      margin-top: -6.5px;
+      box-shadow: 0 3px 6px -1px rgba(0, 0, 0, 0.2);
+      border: 2px solid #ffffff;
+      transition: transform 0.1s ease, background-color 0.15s ease;
+    }
+    input[type=range]::-moz-range-track {
+      width: 100%;
+      height: 7px;
+      cursor: pointer;
+      background: #e2e8f0;
+      border-radius: 9999px;
+    }
+    input[type=range]::-moz-range-thumb {
+      height: 20px;
+      width: 20px;
+      border-radius: 50%;
+      background: #0284c7;
+      cursor: pointer;
+      border: 2px solid #ffffff;
+    }
+    .gauge-circle {
+      transition: stroke-dashoffset 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 min-h-screen flex flex-col font-sans transition-colors duration-200">
+
+  <header class="bg-white/90 dark:bg-slate-900/90 backdrop-blur border-b border-slate-200 dark:border-slate-800 sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center space-x-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-sky-500/20">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white leading-tight">Empirical Health & Longevity Engine</h1>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400">Demographic-adjusted cohort model (N=687,701)</p>
+        </div>
+      </div>
+
+      <!-- Quick Preset & Profile Controls -->
+      <div class="flex items-center gap-2">
+        <div class="flex bg-slate-100 dark:bg-slate-800 p-0.5 rounded-lg text-xs font-medium">
+          <button onclick="applyPreset('average')" class="px-2.5 py-1 rounded-md hover:bg-white dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">Median</button>
+          <button onclick="applyPreset('burnout')" class="px-2.5 py-1 rounded-md hover:bg-white dark:hover:bg-slate-700 text-amber-700 dark:text-amber-300 transition">Burnout</button>
+          <button onclick="applyPreset('athlete')" class="px-2.5 py-1 rounded-md hover:bg-white dark:hover:bg-slate-700 text-emerald-700 dark:text-emerald-300 transition">Athlete</button>
+        </div>
+
+        <button onclick="toggleTheme()" class="p-1.5 rounded-lg text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200" title="Toggle Theme">
+          <svg id="themeIcon" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      
+      <!-- LEFT COLUMN: Demographic Filters + Biometric Sliders (7 cols) -->
+      <section class="lg:col-span-7 space-y-5">
+        
+        <!-- Demographic Adjuster Card -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+          <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-100 dark:border-slate-800">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Demographic Calibration</span>
+            <span class="text-xs text-sky-600 dark:text-sky-400 font-medium">Normalizes cardiovascular & endurance baselines</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Biological Sex</label>
+              <select id="demographicSex" onchange="onDemographicChange()" class="w-full text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 font-medium text-slate-800 dark:text-slate-100">
+                <option value="ALL">All Cohort Baseline</option>
+                <option value="F">Female Baseline</option>
+                <option value="M">Male Baseline</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Age Bracket</label>
+              <select id="demographicAge" onchange="onDemographicChange()" class="w-full text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 font-medium text-slate-800 dark:text-slate-100">
+                <option value="ALL">All Ages (18–64)</option>
+                <option value="YOUNG">Young Adult (18–35)</option>
+                <option value="MID">Middle Age (36–50)</option>
+                <option value="MATURE">Senior Cohort (51–64)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sliders Container -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 sm:p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+          <div class="flex items-center justify-between mb-4 border-b border-slate-100 dark:border-slate-800 pb-3">
+            <div>
+              <h2 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white">Physiological & Activity Sliders</h2>
+              <p class="text-xs text-slate-500">Continuous scoring curves dynamically calibrated to empirical statistics</p>
+            </div>
+            <button onclick="resetSliders()" class="text-xs text-sky-600 hover:text-sky-700 dark:text-sky-400 font-medium">Reset</button>
+          </div>
+
+          <div id="slidersContainer" class="space-y-4">
+            <!-- Dynamically populated via JS -->
+          </div>
+        </div>
+
+        <!-- High-Impact ROI Recommendations Card -->
+        <div class="bg-sky-50/80 dark:bg-slate-900/80 rounded-2xl p-5 border border-sky-100 dark:border-sky-950/60 shadow-sm">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-sky-900 dark:text-sky-300 flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-sky-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+              </svg>
+              High-Impact Behavioral ROI Analysis
+            </h3>
+            <span class="text-[11px] text-sky-600 dark:text-sky-400 font-mono">Partial Derivative Gain</span>
+          </div>
+          <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed" id="recommendationText">
+            Evaluating behavioral leverage points...
+          </p>
+        </div>
+
+      </section>
+
+      <!-- RIGHT COLUMN: Score Ring, Radar Visualization, Sub-scores & Percentiles (5 cols) -->
+      <section class="lg:col-span-5 space-y-5 lg:sticky lg:top-16">
+        
+        <!-- Primary Health Score Card -->
+        <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-200/80 dark:border-slate-800 shadow-md">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Composite Health Score</span>
+            <span id="scoreBadge" class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700">Calculating...</span>
+          </div>
+
+          <!-- Gauge and Number -->
+          <div class="flex flex-col items-center justify-center my-3">
+            <div class="relative w-44 h-44 flex items-center justify-center">
+              <svg class="w-full h-full transform -rotate-90" viewBox="0 0 160 160">
+                <circle cx="80" cy="80" r="68" stroke="currentColor" stroke-width="13" fill="transparent" class="text-slate-100 dark:text-slate-800" />
+                <circle id="scoreGaugeCircle" cx="80" cy="80" r="68" stroke="currentColor" stroke-width="13" fill="transparent"
+                  stroke-dasharray="427.2" stroke-dashoffset="427.2" stroke-linecap="round"
+                  class="gauge-circle text-sky-500" />
+              </svg>
+              <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+                <span id="mainScoreValue" class="text-5xl font-extrabold tracking-tight font-mono text-slate-900 dark:text-white">0</span>
+                <span class="text-[10px] text-slate-400 font-medium tracking-wide mt-1">INDEX 0–100</span>
+              </div>
+            </div>
+            
+            <h3 id="verdictHeadline" class="mt-3 text-sm font-bold text-slate-800 dark:text-slate-100">Optimal Baseline</h3>
+            <p id="verdictSubtext" class="text-xs text-slate-500 dark:text-slate-400 text-center max-w-xs mt-1">Balanced physiological parameters with standard recovery margins.</p>
+          </div>
+
+          <!-- Cross-Parameter Synergies / Alerts Box -->
+          <div id="alertsContainer" class="mt-3 space-y-2">
+            <!-- Dynamic alerts inserted via JS -->
+          </div>
+        </div>
+
+        <!-- Radar Balance Visualization Canvas -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Physiological Balance Radar</h3>
+            <span class="text-[11px] font-mono text-slate-400">7 Domains</span>
+          </div>
+          <div class="flex justify-center items-center">
+            <canvas id="radarCanvas" width="280" height="260" class="w-full max-w-[280px] h-auto"></canvas>
+          </div>
+        </div>
+
+        <!-- Pillar Sub-Scores List -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center justify-between">
+            <span>Domain Sub-Scores</span>
+            <span class="text-[10px] font-mono text-slate-400">0 – 100</span>
+          </h3>
+          <div id="subScoresList" class="space-y-2.5">
+            <!-- Dynamic subscore progress bars inserted here -->
+          </div>
+        </div>
+
+        <!-- Empirical Percentile Comparison Table -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm text-xs">
+          <h4 class="font-bold text-slate-900 dark:text-white mb-2">Cohort Percentiles</h4>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead>
+                <tr class="text-slate-400 border-b border-slate-100 dark:border-slate-800">
+                  <th class="pb-1.5 font-medium">Metric</th>
+                  <th class="pb-1.5 font-medium">Value</th>
+                  <th class="pb-1.5 font-medium">Demographic Mean</th>
+                  <th class="pb-1.5 font-medium text-right">Population %</th>
+                </tr>
+              </thead>
+              <tbody id="percentilesTableBody" class="divide-y divide-slate-100 dark:divide-slate-800/60 font-mono">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+
+  <script>
+    /**
+     * EMPIRICAL DATASET CALIBRATION PARAMETERS
+     * N = 687,701 records from health_fitness_dataset.csv
+     */
+    const BASE_PARAMETERS = [
+      {
+        id: 'sleep_hours',
+        name: 'Sleep Duration',
+        unit: 'hrs',
+        min: 4.0,
+        max: 10.5,
+        step: 0.1,
+        mean: 7.05,
+        std: 0.97,
+        default: 7.1,
+        weight: 0.20,
+        archetype: 'OPTIMAL_RANGE',
+        optLow: 7.0,
+        optHigh: 8.2,
+        info: 'Optimal: 7.0–8.2 hrs. Strongly correlates with stress (r = -0.432).'
+      },
+      {
+        id: 'stress_level',
+        name: 'Autonomic Stress Level',
+        unit: '/10',
+        min: 1.0,
+        max: 10.0,
+        step: 0.5,
+        mean: 5.47,
+        std: 1.91,
+        default: 5.5,
+        weight: 0.15,
+        archetype: 'LOWER_IS_BETTER',
+        info: 'Baseline average: 5.47. Lower levels promote cellular repair.'
+      },
+      {
+        id: 'daily_steps',
+        name: 'Daily Step Count',
+        unit: 'steps',
+        min: 2000,
+        max: 22000,
+        step: 250,
+        mean: 8628,
+        std: 2055,
+        default: 8600,
+        weight: 0.15,
+        archetype: 'HIGHER_IS_BETTER',
+        info: 'Cohort mean: 8,628. Diminishing returns past 14,000 steps.'
+      },
+      {
+        id: 'resting_heart_rate',
+        name: 'Resting Heart Rate',
+        unit: 'bpm',
+        min: 50,
+        max: 90,
+        step: 1,
+        mean: 70.0,
+        std: 5.07,
+        default: 70,
+        weight: 0.15,
+        archetype: 'LOWER_IS_BETTER',
+        info: 'Cohort mean: 70.0 bpm. Athletic recovery manifests < 60 bpm.'
+      },
+      {
+        id: 'endurance_level',
+        name: 'Aerobic Endurance Score',
+        unit: 'pts',
+        min: 4.5,
+        max: 18.5,
+        step: 0.1,
+        mean: 9.49,
+        std: 2.25,
+        default: 9.5,
+        weight: 0.15,
+        archetype: 'HIGHER_IS_BETTER',
+        info: 'Mean: 9.49. Tracks fitness level (r = 0.762) & workout duration.'
+      },
+      {
+        id: 'bmi',
+        name: 'Body Mass Index (BMI)',
+        unit: 'kg/m²',
+        min: 17.0,
+        max: 30.0,
+        step: 0.1,
+        mean: 21.66,
+        std: 1.94,
+        default: 21.7,
+        weight: 0.10,
+        archetype: 'OPTIMAL_RANGE',
+        optLow: 19.5,
+        optHigh: 23.5,
+        info: 'Normal adult cohort range: 19.5–23.5. Mean: 21.66.'
+      },
+      {
+        id: 'hydration_level',
+        name: 'Daily Hydration Intake',
+        unit: 'L',
+        min: 1.0,
+        max: 4.0,
+        step: 0.1,
+        mean: 2.50,
+        std: 0.58,
+        default: 2.5,
+        weight: 0.10,
+        archetype: 'OPTIMAL_RANGE',
+        optLow: 2.4,
+        optHigh: 3.4,
+        info: 'Dataset mean: 2.50 L/day. Vital for cardiovascular viscosity.'
+      }
+    ];
+
+    // Current Values State
+    const currentValues = {};
+    BASE_PARAMETERS.forEach(p => currentValues[p.id] = p.default);
+
+    // Demographic baseline adjustment multipliers
+    function getAdjustedParameters() {
+      const sex = document.getElementById('demographicSex')?.value || 'ALL';
+      const age = document.getElementById('demographicAge')?.value || 'ALL';
+
+      return BASE_PARAMETERS.map(p => {
+        let meanAdj = p.mean;
+        let stdAdj = p.std;
+
+        // Empirical shifts from dataset stratification
+        if (p.id === 'resting_heart_rate') {
+          if (age === 'YOUNG') meanAdj = 68.8;
+          if (age === 'MATURE') meanAdj = 71.2;
+          if (sex === 'F') meanAdj += 1.2;
+        } else if (p.id === 'endurance_level') {
+          if (age === 'YOUNG') meanAdj = 10.8;
+          if (age === 'MATURE') meanAdj = 8.1;
+          if (sex === 'M') meanAdj += 1.1;
+          if (sex === 'F') meanAdj -= 1.1;
+        } else if (p.id === 'daily_steps') {
+          if (age === 'YOUNG') meanAdj = 9200;
+          if (age === 'MATURE') meanAdj = 8050;
+        }
+
+        return { ...p, mean: meanAdj, std: stdAdj };
+      });
+    }
+
+    function normalCDF(z) {
+      const t = 1 / (1 + 0.2316419 * Math.abs(z));
+      const d = 0.3989423 * Math.exp(-z * z / 2);
+      const prob = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))));
+      return z > 0 ? (1 - prob) * 100 : prob * 100;
+    }
+
+    function sigmoid(x, k = 1.1) {
+      return 1 / (1 + Math.exp(-k * x));
+    }
+
+    function evaluateSubScore(param, val) {
+      switch (param.archetype) {
+        case 'OPTIMAL_RANGE': {
+          if (val >= param.optLow && val <= param.optHigh) {
+            return 100;
+          }
+          let delta = val < param.optLow ? (param.optLow - val) / param.std : (val - param.optHigh) / param.std;
+          // Exponential decay
+          return Math.max(0, Math.min(100, 100 * Math.exp(-0.48 * Math.pow(delta, 1.65))));
+        }
+
+        case 'HIGHER_IS_BETTER': {
+          const z = (val - param.mean) / param.std;
+          return Math.max(0, Math.min(100, 100 * sigmoid(z * 1.12)));
+        }
+
+        case 'LOWER_IS_BETTER': {
+          const z = (param.mean - val) / param.std;
+          return Math.max(0, Math.min(100, 100 * sigmoid(z * 1.12)));
+        }
+
+        default:
+          return 50;
+      }
+    }
+
+    function evaluateSynergies(vals) {
+      const penalties = [];
+      let totalDeduction = 0;
+
+      // 1. Allostatic Burnout: Sleep < 6.2h & Stress > 6.5
+      if (vals.sleep_hours < 6.2 && vals.stress_level > 6.5) {
+        const sleepSeverity = (6.2 - vals.sleep_hours) / 1.5;
+        const stressSeverity = (vals.stress_level - 6.5) / 3.5;
+        const deduction = Math.min(15, (sleepSeverity * stressSeverity * 14) + 3);
+        totalDeduction += deduction;
+        penalties.push({
+          type: 'danger',
+          title: 'Burnout / Allostatic Load',
+          description: `Chronic short sleep (${vals.sleep_hours.toFixed(1)}h) paired with elevated stress (${vals.stress_level.toFixed(1)}/10) causes autonomic dysfunction (r = -0.432).`,
+          deduction: deduction
+        });
+      }
+
+      // 2. Cardiovascular Strain: High Resting HR (>76) + BMI (>24.5)
+      if (vals.resting_heart_rate > 76 && vals.bmi > 24.5) {
+        const deduction = Math.min(10, ((vals.resting_heart_rate - 76) / 8 + (vals.bmi - 24.5) / 3) * 4);
+        totalDeduction += deduction;
+        penalties.push({
+          type: 'warning',
+          title: 'Cardiovascular Strain',
+          description: `Resting pulse of ${vals.resting_heart_rate} bpm combined with elevated BMI indicates heightened circulatory work.`,
+          deduction: deduction
+        });
+      }
+
+      // 3. Positive Recovery Synergy: Optimal Sleep + Low Stress
+      if (vals.sleep_hours >= 7.2 && vals.sleep_hours <= 8.5 && vals.stress_level <= 3.5) {
+        const bonus = 4.0;
+        totalDeduction -= bonus;
+        penalties.push({
+          type: 'success',
+          title: 'Restorative Equilibrium',
+          description: `Optimized deep rest and low sympathetic tone create an autonomic recovery synergy (+4.0 bonus).`,
+          deduction: -bonus
+        });
+      }
+
+      return { totalDeduction, penalties };
+    }
+
+    function initializeSliders() {
+      const container = document.getElementById('slidersContainer');
+      container.innerHTML = '';
+      const params = getAdjustedParameters();
+
+      params.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-xl border border-slate-200/70 dark:border-slate-800/80';
+        card.id = `card_${p.id}`;
+
+        card.innerHTML = `
+          <div class="flex items-center justify-between gap-2 mb-1">
+            <div>
+              <label for="input_${p.id}" class="text-xs font-bold text-slate-800 dark:text-slate-100">${p.name}</label>
+              <p class="text-[11px] text-slate-400 dark:text-slate-500">${p.info}</p>
+            </div>
+            <div class="text-right">
+              <span id="display_${p.id}" class="font-mono text-sm font-bold text-sky-600 dark:text-sky-400">
+                ${p.id === 'daily_steps' ? currentValues[p.id].toLocaleString() : currentValues[p.id]}
+              </span>
+              <span class="text-[11px] text-slate-500 dark:text-slate-400">${p.unit}</span>
+            </div>
+          </div>
+
+          <div class="mt-2">
+            <input 
+              type="range" 
+              id="input_${p.id}" 
+              min="${p.min}" 
+              max="${p.max}" 
+              step="${p.step}" 
+              value="${currentValues[p.id]}"
+              oninput="onSliderChange('${p.id}', this.value)"
+            />
+          </div>
+
+          <div class="flex justify-between items-center mt-1.5 text-[10px] text-slate-400 font-mono">
+            <span>Min: ${p.id === 'daily_steps' ? p.min.toLocaleString() : p.min}</span>
+            <span class="text-slate-500 font-sans font-medium">Mean: ${p.id === 'daily_steps' ? Math.round(p.mean).toLocaleString() : p.mean.toFixed(1)}</span>
+            <span>Max: ${p.id === 'daily_steps' ? p.max.toLocaleString() : p.max}</span>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function onSliderChange(id, value) {
+      currentValues[id] = parseFloat(value);
+      const displayElem = document.getElementById(`display_${id}`);
+      if (displayElem) {
+        displayElem.innerText = id === 'daily_steps' 
+          ? Math.round(currentValues[id]).toLocaleString() 
+          : currentValues[id].toFixed(id === 'resting_heart_rate' ? 0 : 1);
+      }
+      recalculateAll();
+    }
+
+    function onDemographicChange() {
+      initializeSliders();
+      recalculateAll();
+    }
+
+    function recalculateAll() {
+      const params = getAdjustedParameters();
+      let weightedBaseScore = 0;
+      const subScoreMap = {};
+      const percentilesMap = {};
+
+      params.forEach(p => {
+        const val = currentValues[p.id];
+        const sub = evaluateSubScore(p, val);
+        subScoreMap[p.id] = sub;
+        weightedBaseScore += sub * p.weight;
+
+        const z = (val - p.mean) / p.std;
+        percentilesMap[p.id] = {
+          z: z,
+          pct: normalCDF(z)
+        };
+      });
+
+      const { totalDeduction, penalties } = evaluateSynergies(currentValues);
+      const finalScore = Math.max(0, Math.min(100, weightedBaseScore - totalDeduction));
+
+      updateMainScoreGauge(finalScore, totalDeduction);
+      updateSubScoresUI(subScoreMap, params);
+      updateAlertsUI(penalties);
+      updatePercentilesTable(percentilesMap, params);
+      computeBehavioralROI(params, subScoreMap, finalScore);
+      drawRadarChart(params, subScoreMap);
+    }
+
+    function updateMainScoreGauge(score, penalty) {
+      const circle = document.getElementById('scoreGaugeCircle');
+      const scoreVal = document.getElementById('mainScoreValue');
+      const badge = document.getElementById('scoreBadge');
+      const headline = document.getElementById('verdictHeadline');
+      const subtext = document.getElementById('verdictSubtext');
+
+      const maxOffset = 427.2; // 2 * PI * 68
+      const offset = maxOffset - (score / 100) * maxOffset;
+      circle.style.strokeDashoffset = offset;
+      scoreVal.innerText = score.toFixed(1);
+
+      let strokeColor = 'text-sky-500';
+      let badgeClass = 'bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-200';
+      let verdictTitle = 'Optimal Health Baseline';
+      let verdictDesc = 'Healthy physiological targets with robust cardiovascular and recovery margins.';
+
+      if (score >= 80) {
+        strokeColor = 'text-emerald-500';
+        badgeClass = 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300';
+        verdictTitle = 'Peak Vitality & High Resilience';
+        verdictDesc = 'Exceptional conditioning, restorative autonomic recovery, and low allostatic wear.';
+      } else if (score >= 62) {
+        strokeColor = 'text-sky-500';
+        badgeClass = 'bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300';
+        verdictTitle = 'Stable Demographic Norm';
+        verdictDesc = 'Aligned with typical cohort values. Steady cardiovascular and metabolic stability.';
+      } else if (score >= 46) {
+        strokeColor = 'text-amber-500';
+        badgeClass = 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300';
+        verdictTitle = 'Sub-Optimal / Recovery Deficit';
+        verdictDesc = 'Noticeable strain detected in autonomic regulation, sleep duration, or fitness levels.';
+      } else {
+        strokeColor = 'text-rose-500';
+        badgeClass = 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300';
+        verdictTitle = 'Compounded Allostatic Load';
+        verdictDesc = 'Systemic strain detected across multiple correlated markers. Prioritize sleep & stress reduction.';
+      }
+
+      circle.className = `gauge-circle ${strokeColor} transition-all duration-500`;
+      badge.className = `text-xs font-semibold px-2.5 py-0.5 rounded-full ${badgeClass}`;
+      badge.innerText = `${score.toFixed(0)} / 100 Score`;
+      headline.innerText = verdictTitle;
+      subtext.innerText = verdictDesc;
+    }
+
+    function updateSubScoresUI(subScores, params) {
+      const container = document.getElementById('subScoresList');
+      container.innerHTML = '';
+
+      params.forEach(p => {
+        const score = subScores[p.id];
+        let barColor = 'bg-sky-500';
+        if (score >= 75) barColor = 'bg-emerald-500';
+        else if (score < 45) barColor = 'bg-rose-500';
+        else if (score < 65) barColor = 'bg-amber-500';
+
+        const row = document.createElement('div');
+        row.className = 'space-y-1';
+        row.innerHTML = `
+          <div class="flex justify-between items-center text-xs">
+            <span class="font-medium text-slate-700 dark:text-slate-300">${p.name}</span>
+            <span class="font-mono font-bold text-slate-800 dark:text-slate-200">${score.toFixed(0)} <span class="text-slate-400 font-normal">/100</span></span>
+          </div>
+          <div class="w-full h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+            <div class="${barColor} h-full rounded-full transition-all duration-300" style="width: ${score}%"></div>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function updateAlertsUI(penalties) {
+      const container = document.getElementById('alertsContainer');
+      container.innerHTML = '';
+
+      if (penalties.length === 0) return;
+
+      penalties.forEach(alert => {
+        const isDanger = alert.type === 'danger';
+        const isSuccess = alert.type === 'success';
+        const colorClasses = isDanger 
+          ? 'bg-rose-50 border-rose-200 text-rose-900 dark:bg-rose-950/40 dark:border-rose-900/60 dark:text-rose-200'
+          : isSuccess
+          ? 'bg-emerald-50 border-emerald-200 text-emerald-900 dark:bg-emerald-950/40 dark:border-emerald-900/60 dark:text-emerald-200'
+          : 'bg-amber-50 border-amber-200 text-amber-900 dark:bg-amber-950/40 dark:border-amber-900/60 dark:text-amber-200';
+
+        const badgeClasses = isDanger ? 'bg-rose-500' : isSuccess ? 'bg-emerald-500' : 'bg-amber-500';
+
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `p-2.5 rounded-xl border text-xs ${colorClasses}`;
+        alertDiv.innerHTML = `
+          <div class="flex items-center justify-between font-bold mb-0.5">
+            <div class="flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full ${badgeClasses}"></span>
+              <span>${alert.title}</span>
+            </div>
+            <span>${alert.deduction > 0 ? `-${alert.deduction.toFixed(1)} pts` : `+${Math.abs(alert.deduction).toFixed(1)} pts`}</span>
+          </div>
+          <p class="text-[11px] leading-relaxed opacity-90">${alert.description}</p>
+        `;
+        container.appendChild(alertDiv);
+      });
+    }
+
+    function updatePercentilesTable(percentiles, params) {
+      const tbody = document.getElementById('percentilesTableBody');
+      tbody.innerHTML = '';
+
+      params.forEach(p => {
+        const val = currentValues[p.id];
+        const pctData = percentiles[p.id];
+        const formattedVal = p.id === 'daily_steps' ? Math.round(val).toLocaleString() : val.toFixed(1);
+        const formattedMean = p.id === 'daily_steps' ? Math.round(p.mean).toLocaleString() : p.mean.toFixed(1);
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors';
+        tr.innerHTML = `
+          <td class="py-1.5 text-slate-700 dark:text-slate-300 font-sans font-medium">${p.name}</td>
+          <td class="py-1.5 text-sky-600 dark:text-sky-400 font-bold">${formattedVal} ${p.unit}</td>
+          <td class="py-1.5 text-slate-400">${formattedMean}</td>
+          <td class="py-1.5 text-right ${pctData.pct > 75 ? 'text-emerald-500 font-bold' : pctData.pct < 25 ? 'text-rose-500' : 'text-slate-500'}">
+            ${pctData.pct.toFixed(0)}th %ile
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function computeBehavioralROI(params, subScores, currentTotal) {
+      const recElement = document.getElementById('recommendationText');
+      
+      // Test the effect of improving each modifiable parameter by a standard incremental step
+      const candidates = [
+        { id: 'sleep_hours', stepDelta: +1.0, label: 'increasing sleep by +1.0 hour', unit: 'hrs' },
+        { id: 'stress_level', stepDelta: -1.5, label: 'lowering stress by 1.5 pts', unit: 'pts' },
+        { id: 'daily_steps', stepDelta: +2500, label: 'adding 2,500 daily steps', unit: 'steps' },
+        { id: 'hydration_level', stepDelta: +0.6, label: 'drinking 0.6L more water', unit: 'L' }
+      ];
+
+      let bestAction = null;
+      let maxDelta = -999;
+
+      candidates.forEach(cand => {
+        const paramObj = params.find(p => p.id === cand.id);
+        const testVals = { ...currentValues };
+        testVals[cand.id] = Math.max(paramObj.min, Math.min(paramObj.max, testVals[cand.id] + cand.stepDelta));
+
+        // Recalculate hypothetical score
+        let hypoBase = 0;
+        params.forEach(p => {
+          hypoBase += evaluateSubScore(p, testVals[p.id]) * p.weight;
+        });
+        const { totalDeduction } = evaluateSynergies(testVals);
+        const hypoScore = Math.max(0, Math.min(100, hypoBase - totalDeduction));
+        const gain = hypoScore - currentTotal;
+
+        if (gain > maxDelta) {
+          maxDelta = gain;
+          bestAction = { ...cand, gain: gain };
+        }
+      });
+
+      if (bestAction && bestAction.gain > 0.4) {
+        recElement.innerHTML = `
+          <strong>Highest Leverage Habit:</strong> Focus on <span class="text-sky-600 dark:text-sky-300 font-bold">${bestAction.label}</span>. 
+          This single change produces a projected <strong class="text-emerald-600 dark:text-emerald-400">+${bestAction.gain.toFixed(1)} points</strong> boost to your composite index by mitigating cross-parameter strain.
+        `;
+      } else {
+        recElement.innerHTML = `
+          <strong>Well-Balanced State:</strong> Your physiological parameters are currently near equilibrium. Minor adjustments will produce steady, incremental gains across all pillars.
+        `;
+      }
+    }
+
+    function drawRadarChart(params, subScores) {
+      const canvas = document.getElementById('radarCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const width = canvas.width;
+      const height = canvas.height;
+      const centerX = width / 2;
+      const centerY = height / 2;
+      const radius = 95;
+      const totalAxes = params.length;
+      const angleSlice = (Math.PI * 2) / totalAxes;
+
+      ctx.clearRect(0, 0, width, height);
+
+      // Draw concentric guide circles
+      const levels = [0.25, 0.5, 0.75, 1.0];
+      ctx.lineWidth = 1;
+      levels.forEach(level => {
+        ctx.beginPath();
+        for (let i = 0; i < totalAxes; i++) {
+          const angle = i * angleSlice - Math.PI / 2;
+          const x = centerX + Math.cos(angle) * (radius * level);
+          const y = centerY + Math.sin(angle) * (radius * level);
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.closePath();
+        ctx.strokeStyle = document.documentElement.classList.contains('dark') ? '#334155' : '#e2e8f0';
+        ctx.stroke();
+      });
+
+      // Draw Axis Lines & Short Labels
+      ctx.font = '10px Inter, sans-serif';
+      ctx.fillStyle = document.documentElement.classList.contains('dark') ? '#94a3b8' : '#64748b';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      const shortNames = ['Sleep', 'Stress', 'Steps', 'Rest HR', 'Endurance', 'BMI', 'Hydration'];
+
+      for (let i = 0; i < totalAxes; i++) {
+        const angle = i * angleSlice - Math.PI / 2;
+        const x = centerX + Math.cos(angle) * radius;
+        const y = centerY + Math.sin(angle) * radius;
+
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.lineTo(x, y);
+        ctx.strokeStyle = document.documentElement.classList.contains('dark') ? '#334155' : '#e2e8f0';
+        ctx.stroke();
+
+        // Label position
+        const lx = centerX + Math.cos(angle) * (radius + 18);
+        const ly = centerY + Math.sin(angle) * (radius + 18);
+        ctx.fillText(shortNames[i] || '', lx, ly);
+      }
+
+      // Draw Data Polygon
+      ctx.beginPath();
+      params.forEach((p, i) => {
+        const angle = i * angleSlice - Math.PI / 2;
+        const normalized = Math.max(0.1, Math.min(1.0, (subScores[p.id] || 50) / 100));
+        const x = centerX + Math.cos(angle) * (radius * normalized);
+        const y = centerY + Math.sin(angle) * (radius * normalized);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(14, 165, 233, 0.25)';
+      ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#0284c7';
+      ctx.stroke();
+
+      // Draw point markers
+      params.forEach((p, i) => {
+        const angle = i * angleSlice - Math.PI / 2;
+        const normalized = Math.max(0.1, Math.min(1.0, (subScores[p.id] || 50) / 100));
+        const x = centerX + Math.cos(angle) * (radius * normalized);
+        const y = centerY + Math.sin(angle) * (radius * normalized);
+        ctx.beginPath();
+        ctx.arc(x, y, 3, 0, Math.PI * 2);
+        ctx.fillStyle = '#0284c7';
+        ctx.fill();
+      });
+    }
+
+    function applyPreset(name) {
+      if (name === 'average') {
+        BASE_PARAMETERS.forEach(p => currentValues[p.id] = p.default);
+      } else if (name === 'burnout') {
+        currentValues.sleep_hours = 5.2;
+        currentValues.stress_level = 8.5;
+        currentValues.daily_steps = 4500;
+        currentValues.resting_heart_rate = 77;
+        currentValues.endurance_level = 7.0;
+        currentValues.hydration_level = 1.7;
+        currentValues.bmi = 23.8;
+      } else if (name === 'athlete') {
+        currentValues.sleep_hours = 8.2;
+        currentValues.stress_level = 2.5;
+        currentValues.daily_steps = 15000;
+        currentValues.resting_heart_rate = 55;
+        currentValues.endurance_level = 15.0;
+        currentValues.hydration_level = 3.2;
+        currentValues.bmi = 21.5;
+      }
+
+      BASE_PARAMETERS.forEach(p => {
+        const input = document.getElementById(`input_${p.id}`);
+        const display = document.getElementById(`display_${p.id}`);
+        if (input) input.value = currentValues[p.id];
+        if (display) {
+          display.innerText = p.id === 'daily_steps' 
+            ? Math.round(currentValues[p.id]).toLocaleString() 
+            : currentValues[p.id].toFixed(p.id === 'resting_heart_rate' ? 0 : 1);
+        }
+      });
+
+      recalculateAll();
+    }
+
+    function resetSliders() {
+      applyPreset('average');
+    }
+
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      const icon = document.getElementById('themeIcon');
+      if (isDark) {
+        icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />`;
+      } else {
+        icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />`;
+      }
+      recalculateAll();
+    }
+
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.documentElement.classList.add('dark');
+    }
+
+    window.onload = function() {
+      initializeSliders();
+      recalculateAll();
+    };
+  </script>
+</body>
+</html>
