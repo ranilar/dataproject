@@ -1,10 +1,22 @@
+from pathlib import Path
 import numpy as np
 import pandas as pd
 from sklearn.linear_model import Ridge
 
+# Resolves to the folder containing this script (/home/sponka/dataproject/data)
+BASE_DIR = Path(__file__).resolve().parent
+
+# If the datasets are in the same 'data' folder:
+csv_path = BASE_DIR / "health_fitness_dataset.csv"
+excel_path = BASE_DIR / "Fitness_Health_Tracking_Dataset_with_Missing_Values.xlsx"
+
+# (If your datasets are one folder up in /home/sponka/dataproject/, use:)
+# csv_path = BASE_DIR.parent / "health_fitness_dataset.csv"
+# excel_path = BASE_DIR.parent / "Fitness_Health_Tracking_Dataset_with_Missing_Values.xlsx"
+
 # 1. Load Datasets
-df_csv = pd.read_csv("health_fitness_dataset.csv")
-df_xlsx = pd.read_excel("Fitness_Health_Tracking_Dataset_with_Missing_Values.xlsx")
+df_csv = pd.read_csv(csv_path)
+df_xlsx = pd.read_excel(excel_path)
 
 # 2. Clean Anomalies in CSV
 df_csv.loc[df_csv["daily_steps"] < 0, "daily_steps"] = np.nan
