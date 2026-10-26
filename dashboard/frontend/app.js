@@ -22,13 +22,6 @@ const RADAR_LABELS = {
   endurance_level: 'Endurance', bmi: 'BMI', hydration_level: 'Hydration'
 };
 
-const GAUGE_STYLES = {
-  emerald: { stroke: 'url(#scoreGradientEmerald)', badge: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' },
-  sky: { stroke: 'url(#scoreGradientSky)', badge: 'bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300' },
-  amber: { stroke: 'url(#scoreGradientAmber)', badge: 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300' },
-  rose: { stroke: 'url(#scoreGradientRose)', badge: 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300' }
-};
-
 /**
  * API
  */
@@ -110,7 +103,6 @@ function renderResult(result) {
   }
   updateMainScoreGauge(result);
   updateSubScoresUI(result.sub_scores);
-  updateAlertsUI(result.alerts);
   updatePercentilesTable(result.percentiles);
   updateBehavioralROI(result.roi);
   drawRadarChart(result.sub_scores);
@@ -186,13 +178,10 @@ function setMood(mood) {
   const badge = document.getElementById('moodEffectBadge');
   if (mood === 'Happy') {
     badge.innerText = 'Recovery Bonus Active (+5 pts)';
-    badge.className = 'text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-300/40';
   } else if (mood === 'Stressed' || mood === 'Sad') {
     badge.innerText = 'Burnout Multiplier Active (+25%)';
-    badge.className = 'text-[10px] font-mono px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 border border-rose-300/40';
   } else {
     badge.innerText = 'Neutral Baseline';
-    badge.className = 'text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700';
   }
 
   recalculateAll();
@@ -260,7 +249,7 @@ function renderSliders() {
       <div class="flex items-center justify-between gap-2 mb-1">
         <div class="flex items-center gap-1.5">
           <label for="input_${p.id}" class="text-xs font-bold text-slate-800 dark:text-slate-100">${p.name}</label>
-          ${isEnduranceLocked ? '<span class="text-[9px] font-mono bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 px-1 rounded">Auto</span>' : ''}
+          ${isEnduranceLocked ? '<span class="text-[9px] font-mono bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-1 rounded">Auto</span>' : ''}
           <span class="text-[10px] text-slate-400 font-normal">(${p.hint})</span>
         </div>
         <div class="text-right">
@@ -296,15 +285,12 @@ function renderSliders() {
 
 function updateMainScoreGauge(result) {
   const circle = document.getElementById('scoreGaugeCircle');
-  const style = GAUGE_STYLES[result.verdict.tier];
 
   const maxOffset = 427.2;
   circle.style.strokeDashoffset = maxOffset - (result.score / 100) * maxOffset;
-  circle.setAttribute('stroke', style.stroke);
   document.getElementById('mainScoreValue').innerText = result.score.toFixed(1);
 
   const badge = document.getElementById('scoreBadge');
-  badge.className = `text-xs font-semibold px-2.5 py-0.5 rounded-full ${style.badge}`;
   badge.innerText = `${result.score.toFixed(0)} / 100 Index`;
   document.getElementById('verdictHeadline').innerText = result.verdict.title;
   document.getElementById('verdictSubtext').innerText = result.verdict.description;
@@ -317,8 +303,7 @@ function updateSubScoresUI(subScores) {
   PARAM_SPECS.forEach(p => {
     const score = subScores[p.id];
     let barColor = 'bg-sky-500';
-    if (score >= 85) barColor = 'bg-emerald-500';
-    else if (score < 50) barColor = 'bg-rose-500';
+    if (score < 50) barColor = 'bg-rose-500';
     else if (score < 70) barColor = 'bg-amber-500';
 
     const row = document.createElement('div');
@@ -336,37 +321,6 @@ function updateSubScoresUI(subScores) {
   });
 }
 
-function updateAlertsUI(alerts) {
-  const container = document.getElementById('alertsContainer');
-  container.innerHTML = '';
-
-  alerts.forEach(alert => {
-    const isDanger = alert.type === 'danger';
-    const isSuccess = alert.type === 'success';
-    const colorClasses = isDanger
-      ? 'bg-rose-50 border-rose-200 text-rose-900 dark:bg-rose-950/40 dark:border-rose-900/60 dark:text-rose-200'
-      : isSuccess
-      ? 'bg-emerald-50 border-emerald-200 text-emerald-900 dark:bg-emerald-950/40 dark:border-emerald-900/60 dark:text-emerald-200'
-      : 'bg-amber-50 border-amber-200 text-amber-900 dark:bg-amber-950/40 dark:border-amber-900/60 dark:text-amber-200';
-
-    const badgeClasses = isDanger ? 'bg-rose-500' : isSuccess ? 'bg-emerald-500' : 'bg-amber-500';
-
-    const alertDiv = document.createElement('div');
-    alertDiv.className = `p-2.5 rounded-xl border text-xs ${colorClasses}`;
-    alertDiv.innerHTML = `
-      <div class="flex items-center justify-between font-bold mb-0.5">
-        <div class="flex items-center gap-1.5">
-          <span class="w-2 h-2 rounded-full ${badgeClasses}"></span>
-          <span>${alert.title}</span>
-        </div>
-        <span>${alert.deduction > 0 ? `-${alert.deduction.toFixed(1)} pts` : `+${Math.abs(alert.deduction).toFixed(1)} pts`}</span>
-      </div>
-      <p class="text-[11px] leading-relaxed opacity-90">${alert.description}</p>
-    `;
-    container.appendChild(alertDiv);
-  });
-}
-
 function updatePercentilesTable(percentiles) {
   const tbody = document.getElementById('percentilesTableBody');
   tbody.innerHTML = '';
@@ -381,8 +335,8 @@ function updatePercentilesTable(percentiles) {
       <td class="py-1.5 text-slate-700 dark:text-slate-300 font-sans font-medium">${p.name}</td>
       <td class="py-1.5 text-sky-600 dark:text-sky-400 font-bold">${formatMean(p.id, val)} ${p.unit}</td>
       <td class="py-1.5 text-slate-400">${formatMean(p.id, data.mean)}</td>
-      <td class="py-1.5 ${data.z > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'}">${data.z > 0 ? '+' : ''}${data.z.toFixed(2)}σ</td>
-      <td class="py-1.5 text-right ${data.pct > 75 ? 'text-emerald-500 font-bold' : data.pct < 25 ? 'text-rose-500 font-semibold' : 'text-slate-500'}">
+      <td class="py-1.5 text-slate-500 dark:text-slate-400">${data.z > 0 ? '+' : ''}${data.z.toFixed(2)}σ</td>
+      <td class="py-1.5 text-right text-slate-500 dark:text-slate-400">
         ${data.pct.toFixed(0)}th %ile
       </td>
     `;
@@ -395,7 +349,7 @@ function updateBehavioralROI(roi) {
   if (roi) {
     recElement.innerHTML = `
       <strong>Highest-Leverage Habit:</strong> Focus on <span class="text-sky-600 dark:text-sky-400 font-bold">${roi.label}</span>.
-      This adjustment yields an estimated <strong class="text-emerald-600 dark:text-emerald-400">+${roi.gain.toFixed(1)} points</strong> improvement to the overall score.
+      This adjustment yields an estimated <strong class="text-slate-900 dark:text-white">+${roi.gain.toFixed(1)} points</strong> improvement to the overall score.
     `;
   } else {
     recElement.innerHTML = `
