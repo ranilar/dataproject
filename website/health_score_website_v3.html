@@ -1069,9 +1069,9 @@
       const candidates = [
         { id: 'sleep_hours', delta: +1.0, label: 'extending sleep duration by +1.0 hr' },
         { id: 'stress_level', delta: -1.5, label: 'mitigating stress towards 2.5 eustress' },
-        { id: 'daily_steps', delta: +2500, label: 'bringing daily steps into 7k–10k optimal zone' },
+        { id: 'daily_steps', delta: +2500, label: 'bringing daily steps into the 7k–10k zone for moderate activity goals' },
         { id: 'hydration_level', delta: +0.6, label: 'increasing daily hydration' },
-        { id: 'mood', delta: 'Happy', label: 'cultivating a positive affective state (Happy)' }
+        { id: 'mood', delta: 'Happy', label: 'having a positive affective state (Happy)' }
       ];
 
       let bestCandidate = null;
@@ -1110,11 +1110,11 @@
       if (bestCandidate && bestCandidate.gain > 0.4) {
         recElement.innerHTML = `
           <strong>Highest-Leverage Habit:</strong> Focus on <span class="text-sky-600 dark:text-sky-400 font-bold">${bestCandidate.label}</span>. 
-          This single adjustment yields an estimated <strong class="text-emerald-600 dark:text-emerald-400">+${bestCandidate.gain.toFixed(1)} points</strong> composite improvement by unlocking autonomic synergy and resolving biological bottlenecks.
+          This adjustment yields an estimated <strong class="text-emerald-600 dark:text-emerald-400">+${bestCandidate.gain.toFixed(1)} points</strong> improvement to the overall score.
         `;
       } else {
         recElement.innerHTML = `
-          <strong>Well-Balanced Equilibrium:</strong> Your physiological parameters are harmoniously balanced. Maintaining current habits will preserve optimal vitality.
+          <strong>Well-Balanced Equilibrium:</strong> Your physiological parameters are currently balanced.
         `;
       }
     }
