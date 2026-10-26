@@ -61,7 +61,6 @@ def score(req: ScoreRequest):
         req.values.model_dump(),
         cohort=req.cohort,
         sex=req.sex,
-        mood=req.mood,
         age=req.age,
         active_minutes=req.active_minutes,
         auto_endurance=req.auto_endurance,

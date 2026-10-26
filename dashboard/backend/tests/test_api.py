@@ -25,17 +25,17 @@ def test_config_hides_weights_and_sds():
 
 
 def test_default_inputs_score_high():
-    res = score(mood="Happy")
+    res = score()
     assert res.status_code == 200
     body = res.json()
     assert 0 <= body["score"] <= 100
     assert body["verdict"]["tier"] == "emerald"
-    assert any(a["type"] == "success" for a in body["alerts"])
+    assert body["alerts"] == []
 
 
 def test_burnout_profile_triggers_alerts_and_low_score():
     profile = client.get("/api/profiles/burnout").json()
-    res = score(values=profile["values"], mood=profile["mood"], active_minutes=profile["active_minutes"])
+    res = score(values=profile["values"], active_minutes=profile["active_minutes"])
     body = res.json()
     titles = {a["title"] for a in body["alerts"]}
     assert "Allostatic Burnout & Sleep Debt" in titles
@@ -72,7 +72,7 @@ def test_hydration_target_depends_on_sex():
 @pytest.mark.parametrize("body", [
     {"values": {**DEFAULTS, "bmi": "nan"}},
     {"values": {k: v for k, v in DEFAULTS.items() if k != "bmi"}},
-    {"values": DEFAULTS, "mood": "Angry"},
+    {"values": DEFAULTS, "mood": "Happy"},  # mood was removed from the API
     {"values": DEFAULTS, "cohort": "OTHER"},
     {"values": DEFAULTS, "unexpected": 1},
 ])
@@ -81,8 +81,9 @@ def test_invalid_score_requests_rejected(body):
 
 
 def test_profile_hydration_by_sex_and_unknown_profile():
-    assert client.get("/api/profiles/report_optimal?sex=M").json()["values"]["hydration_level"] == 3.7
-    assert client.get("/api/profiles/report_optimal?sex=F").json()["values"]["hydration_level"] == 2.7
+    assert client.get("/api/profiles/athlete?sex=M").json()["values"]["hydration_level"] == 4.0
+    assert client.get("/api/profiles/athlete?sex=F").json()["values"]["hydration_level"] == 3.2
+    assert client.get("/api/profiles/report_optimal").status_code == 404
     assert client.get("/api/profiles/nope").status_code == 404
 
 

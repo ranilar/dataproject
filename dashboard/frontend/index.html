@@ -25,7 +25,7 @@
     .section-title { font-size: 0.95rem; font-weight: 600; }
     .input-label { display: block; font-size: 0.8rem; font-weight: 500; }
 
-    .field, .btn, .mood-btn {
+    .field, .btn {
       border: 1px solid #cbd5e1;
       border-radius: 6px;
       background: #ffffff;
@@ -34,9 +34,10 @@
     }
     .field { padding: 4px 6px; }
     .btn { padding: 4px 8px; }
-    .btn:hover, .mood-btn:hover { border-color: #64748b; }
-    .mood-btn { padding: 6px 0; font-weight: 500; }
-    .mood-btn-active { border-color: #0f172a; background: #f1f5f9; font-weight: 600; }
+    .btn:hover { border-color: #64748b; }
+
+    #disclaimerDialog { max-width: 34rem; width: calc(100% - 2rem); border: 1px solid #cbd5e1; border-radius: 8px; padding: 0; }
+    #disclaimerDialog::backdrop { background: rgba(15, 23, 42, 0.4); }
 
     input[type=range] {
       -webkit-appearance: none;
@@ -91,19 +92,21 @@
 
       <div class="flex items-center flex-wrap gap-3 text-xs">
         <label class="flex items-center gap-1.5">
-          <span class="text-slate-500">Cohort</span>
+          <span class="text-slate-500">Dataset</span>
           <select id="cohortSelector" onchange="onCohortChange()" class="field">
-            <option value="HARMONIZED" selected>Combined Cohorts (N=724k)</option>
-            <option value="CLINICAL">Dataset 1: Clinical (N=687k)</option>
+            <option value="HARMONIZED" selected>Combined Datasets (N=724k)</option>
+            <option value="CLINICAL">Dataset 1: Plain (N=687k)</option>
             <option value="WEARABLE">Dataset 2: Wearable (N=36.5k)</option>
           </select>
         </label>
 
         <div class="flex items-center gap-1">
           <span class="text-slate-500 mr-0.5">Examples</span>
-          <button onclick="applyPreset('burnout')" title="High stress, short sleep, low activity" class="btn">Burnout</button>
+          <button onclick="applyPreset('burnout')" title="High stress, short sleep, low activity" class="btn">Non-athletic</button>
           <button onclick="applyPreset('athlete')" title="High endurance, 15k steps, resting HR 55 bpm" class="btn">Athlete</button>
         </div>
+
+        <button onclick="openDisclaimer()" class="btn" aria-haspopup="dialog">Info</button>
       </div>
     </div>
   </header>
@@ -138,22 +141,6 @@
         </div>
 
         <div class="space-y-2">
-          <div class="flex items-baseline justify-between gap-2">
-            <h3 class="section-title">Mood</h3>
-            <span id="moodEffectBadge" class="text-xs text-slate-500">Neutral Baseline</span>
-          </div>
-          <p class="text-xs text-slate-500">
-            Happy adds a +5.0 recovery bonus when sleep and stress are balanced. Sad or Stressed increases burnout penalties by 25%.
-          </p>
-          <div class="grid grid-cols-4 gap-2">
-            <button type="button" onclick="setMood('Happy')" id="moodBtn_Happy" class="mood-btn">Happy</button>
-            <button type="button" onclick="setMood('Neutral')" id="moodBtn_Neutral" class="mood-btn mood-btn-active">Neutral</button>
-            <button type="button" onclick="setMood('Sad')" id="moodBtn_Sad" class="mood-btn">Sad</button>
-            <button type="button" onclick="setMood('Stressed')" id="moodBtn_Stressed" class="mood-btn">Stressed</button>
-          </div>
-        </div>
-
-        <div class="space-y-2">
           <div class="flex items-center justify-between gap-2">
             <h3 class="section-title">Measurements</h3>
             <div class="flex items-center gap-3 text-xs">
@@ -180,7 +167,7 @@
         <div>
           <div class="flex items-baseline justify-between gap-2 mb-2">
             <h3 class="section-title">Comparison with data</h3>
-            <span class="text-xs text-slate-500" id="percentileCohortLabel">Combined Cohorts</span>
+            <span class="text-xs text-slate-500" id="percentileCohortLabel">Combined Datasets</span>
           </div>
           <div class="overflow-x-auto">
             <table class="w-full text-left text-xs">
@@ -188,7 +175,7 @@
                 <tr class="text-slate-500 border-b border-slate-300">
                   <th class="py-1.5 font-medium">Metric</th>
                   <th class="py-1.5 font-medium">Value</th>
-                  <th class="py-1.5 font-medium">Cohort Mean</th>
+                  <th class="py-1.5 font-medium">Dataset Mean</th>
                   <th class="py-1.5 font-medium">Z-Score</th>
                   <th class="py-1.5 font-medium text-right">Population %</th>
                 </tr>
@@ -225,8 +212,20 @@
   </main>
 
   <footer class="py-4 text-center text-xs text-slate-400">
-    <p>Wellness Assessment App • Calibrated against Clinical Telemetry (N=687k) & Longitudinal Wearable Log (N=36.5k)</p>
+    <p>Wellness Assessment App • Calibrated against Dataset 1: Plain (N=687k) & Dataset 2: Wearable (N=36.5k)</p>
   </footer>
+
+  <dialog id="disclaimerDialog" aria-labelledby="disclaimerTitle">
+    <div class="p-5 space-y-3 text-sm leading-relaxed text-slate-700">
+      <h2 id="disclaimerTitle" class="text-base font-semibold text-slate-900">Disclaimer</h2>
+      <p class="font-medium text-slate-900">Your data will not be stored, but merely compared to the data we already have.</p>
+      <p>The app works by calculating a wellness score for each input parameter. The scores are then added together to provide you with an overall score for your well-being index.</p>
+      <p>Finally, you are given feedback on how you score against optimal values found from scientific literature, and how you could improve your scoring. This gives you a way to develop positive habits to improve your physical well-being. You can also compare your statistics to our data, and see how you rank within each metric.</p>
+      <form method="dialog" class="flex justify-end pt-1">
+        <button class="btn" autofocus>Close</button>
+      </form>
+    </div>
+  </dialog>
 
   <script src="config.js"></script>
   <script src="app.js"></script>

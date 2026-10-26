@@ -7,7 +7,7 @@ original dashboard hard-coded.
 
 COHORTS = {
     "HARMONIZED": {
-        "name": "Combined Master Cohort",
+        "name": "Combined Master Dataset",
         "count": 724201,
         "stats": {
             "sleep_hours": {"mean": 7.05, "std": 0.98},
@@ -20,7 +20,7 @@ COHORTS = {
         },
     },
     "CLINICAL": {
-        "name": "Dataset 1: Clinical Telemetry",
+        "name": "Dataset 1: Plain",
         "count": 687701,
         "stats": {
             "sleep_hours": {"mean": 7.05, "std": 0.97},
@@ -96,16 +96,16 @@ PROFILES = {
     "clinical_med": lambda sex: {
         "values": {"sleep_hours": 7.05, "stress_level": 5.5, "daily_steps": 8628, "heart_rate": 70,
                    "endurance_level": 9.5, "bmi": 21.7, "hydration_level": 2.5},
-        "active_minutes": 75, "mood": "Neutral",
+        "active_minutes": 75,
     },
     "burnout": lambda sex: {
         "values": {"sleep_hours": 5.2, "stress_level": 8.5, "daily_steps": 4200, "heart_rate": 84,
                    "endurance_level": 6.8, "bmi": 27.5, "hydration_level": 1.6},
-        "active_minutes": 15, "mood": "Stressed",
+        "active_minutes": 15,
     },
     "athlete": lambda sex: {
         "values": {"sleep_hours": 8.2, "stress_level": 2.5, "daily_steps": 14500, "heart_rate": 54,
                    "endurance_level": 19.0, "bmi": 22.5, "hydration_level": 4.0 if sex == "M" else 3.2},
-        "active_minutes": 110, "mood": "Happy",
+        "active_minutes": 110,
     },
 }

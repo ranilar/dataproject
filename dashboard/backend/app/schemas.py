@@ -4,8 +4,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 CohortKey = Literal["HARMONIZED", "CLINICAL", "WEARABLE"]
 Sex = Literal["ALL", "M", "F"]
-Mood = Literal["Happy", "Neutral", "Sad", "Stressed"]
-AlertType = Literal["warning", "danger", "success"]
+AlertType = Literal["warning", "danger"]
 Tier = Literal["emerald", "sky", "amber", "rose"]
 
 
@@ -27,7 +26,6 @@ class ScoreRequest(StrictModel):
     values: Metrics
     cohort: CohortKey = "HARMONIZED"
     sex: Sex = "ALL"
-    mood: Mood = "Neutral"
     age: int = Field(38, ge=0, le=120)
     active_minutes: float = Field(75, ge=0, le=1440)
     auto_endurance: bool = True
@@ -103,4 +101,3 @@ class ConfigResponse(BaseModel):
 class Profile(BaseModel):
     values: dict[str, float]
     active_minutes: float
-    mood: Mood

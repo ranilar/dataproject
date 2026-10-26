@@ -34,7 +34,7 @@ def hydration_target(sex):
         return {"target": 3.7, "low": 3.4, "high": 4.1, "label": "3.7 L (Male Target)"}
     if sex == "F":
         return {"target": 2.7, "low": 2.4, "high": 3.1, "label": "2.7 L (Female Target)"}
-    return {"target": 3.1, "low": 2.7, "high": 3.5, "label": "3.1 L (Cohort Norm)"}
+    return {"target": 3.1, "low": 2.7, "high": 3.5, "label": "3.1 L (Dataset Norm)"}
 
 
 def physiological_endurance(mins, bmi, age, steps):
@@ -111,7 +111,7 @@ def sub_score(param_id, val, sex):
     return 50.0
 
 
-def synergies(vals, mood):
+def synergies(vals):
     """Cross-parameter synergies, overexertion and BMI concern alerts. Returns (total_deduction, alerts)."""
     alerts = []
     total = 0.0
@@ -159,30 +159,17 @@ def synergies(vals, mood):
             "deduction": deduction,
         })
 
-    # 4. Allostatic burnout synergy (sleep < 6.2h and stress > 6.0), amplified by mood
+    # 4. Allostatic burnout synergy (sleep < 6.2h and stress > 6.0)
     if vals["sleep_hours"] < 6.2 and vals["stress_level"] > 6.0:
         sleep_severity = (6.2 - vals["sleep_hours"]) / 1.6
         stress_severity = (vals["stress_level"] - 6.0) / 4.0
         deduction = min(15, (sleep_severity * stress_severity * 12) + 3.5)
-        if mood in ("Stressed", "Sad"):
-            deduction *= 1.25  # +25% burnout amplification
         total += deduction
         alerts.append({
             "type": "danger",
             "title": "Allostatic Burnout & Sleep Debt",
             "description": f"Short sleep ({to_fixed(vals['sleep_hours'], 1):.1f}h) paired with elevated stress ({to_fixed(vals['stress_level'], 1):.1f}/10) exhausts autonomic recovery.",
             "deduction": deduction,
-        })
-
-    # 5. Positive neuro-affective recovery bonus: optimal sleep (7–9h) + low stress (2–3) + Happy mood
-    if 7.0 <= vals["sleep_hours"] <= 9.0 and 2.0 <= vals["stress_level"] <= 3.0 and mood == "Happy":
-        bonus = 5.0
-        total -= bonus
-        alerts.append({
-            "type": "success",
-            "title": "Restorative Neuro-Affective Synergy",
-            "description": "Optimal sleep, adaptive stress (2–3/10), and positive affective tone trigger deep cellular recovery (+5.0 pts bonus).",
-            "deduction": -bonus,
         })
 
     return total, alerts
@@ -198,7 +185,7 @@ def verdict(score):
                 "description": "Consistent cardiorespiratory metrics with mild opportunities for habit optimization."}
     if score >= 60:
         return {"tier": "sky", "title": "Moderate Physiological State",
-                "description": "Aligned with cohort averages. Regular activity sustains stability."}
+                "description": "Aligned with dataset averages. Regular activity sustains stability."}
     if score >= 45:
         return {"tier": "amber", "title": "Elevated Physiological Strain",
                 "description": "Moderate allostatic stress detected across autonomic sleep or cardiometabolic markers."}
@@ -215,24 +202,19 @@ ROI_CANDIDATES = [
     {"id": "stress_level", "delta": -1.5, "label": "mitigating stress towards 2.5 stress"},
     {"id": "daily_steps", "delta": 2500, "label": "bringing daily steps into the 7k–10k zone for moderate activity goals"},
     {"id": "hydration_level", "delta": 0.6, "label": "increasing daily hydration"},
-    {"id": "mood", "delta": "Happy", "label": "having a positive affective state (Happy)"},
 ]
 
 
-def behavioral_roi(vals, mood, sex, current_total):
+def behavioral_roi(vals, sex, current_total):
     """Single habit change with the largest score gain, or None if no change gains more than 0.4 pts."""
     best = None
     max_gain = -999.0
     for cand in ROI_CANDIDATES:
         test_vals = dict(vals)
-        test_mood = mood
-        if cand["id"] == "mood":
-            test_mood = "Happy"
-        else:
-            spec = SPECS_BY_ID[cand["id"]]
-            test_vals[cand["id"]] = max(spec["min"], min(spec["max"], test_vals[cand["id"]] + cand["delta"]))
+        spec = SPECS_BY_ID[cand["id"]]
+        test_vals[cand["id"]] = max(spec["min"], min(spec["max"], test_vals[cand["id"]] + cand["delta"]))
 
-        deduction, _ = synergies(test_vals, test_mood)
+        deduction, _ = synergies(test_vals)
         hypo_score = max(0.0, min(100.0, _weighted_base(test_vals, sex) - deduction))
         gain = hypo_score - current_total
         if gain > max_gain:
@@ -242,7 +224,7 @@ def behavioral_roi(vals, mood, sex, current_total):
     return best if best and best["gain"] > 0.4 else None
 
 
-def evaluate(values, *, cohort, sex, mood, age, active_minutes, auto_endurance):
+def evaluate(values, *, cohort, sex, age, active_minutes, auto_endurance):
     """Full dashboard evaluation for one set of inputs."""
     vals = dict(values)
     if auto_endurance:
@@ -262,7 +244,7 @@ def evaluate(values, *, cohort, sex, mood, age, active_minutes, auto_endurance):
         pct = normal_cdf(-z) if pid in ("heart_rate", "stress_level") else normal_cdf(z)
         percentiles[pid] = {"z": z, "pct": pct, "mean": stat["mean"]}
 
-    total_deduction, alerts = synergies(vals, mood)
+    total_deduction, alerts = synergies(vals)
     weighted = sum(sub_scores[p["id"]] * p["weight"] for p in PARAM_SPECS)
     score = max(0.0, min(100.0, weighted - total_deduction))
 
@@ -274,6 +256,6 @@ def evaluate(values, *, cohort, sex, mood, age, active_minutes, auto_endurance):
         "sub_scores": sub_scores,
         "percentiles": percentiles,
         "alerts": alerts,
-        "roi": behavioral_roi(vals, mood, sex, score),
+        "roi": behavioral_roi(vals, sex, score),
         "hydration_target": hydration_target(sex),
     }

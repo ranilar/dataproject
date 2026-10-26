@@ -10,7 +10,6 @@ let PARAM_SPECS = [];
 let COHORTS = {};
 let activeCohortKey = 'HARMONIZED';
 let userSex = 'ALL'; // 'ALL', 'M', 'F'
-let userMood = 'Neutral';
 let autoCalculateEndurance = true;
 let userAge = 38;
 let activeMinutes = 75;
@@ -72,7 +71,6 @@ function recalculateAll() {
       values: currentValues,
       cohort: activeCohortKey,
       sex: userSex,
-      mood: userMood,
       age: userAge,
       active_minutes: activeMinutes,
       auto_endurance: autoCalculateEndurance
@@ -162,27 +160,6 @@ function onAutoEnduranceToggle() {
   recalculateAll();
 }
 
-function setMood(mood) {
-  userMood = mood;
-  const moods = ['Happy', 'Neutral', 'Sad', 'Stressed'];
-  moods.forEach(m => {
-    const btn = document.getElementById(`moodBtn_${m}`);
-    if (!btn) return;
-    btn.className = m === mood ? 'mood-btn mood-btn-active' : 'mood-btn';
-  });
-
-  const badge = document.getElementById('moodEffectBadge');
-  if (mood === 'Happy') {
-    badge.innerText = 'Recovery Bonus Active (+5 pts)';
-  } else if (mood === 'Stressed' || mood === 'Sad') {
-    badge.innerText = 'Burnout Multiplier Active (+25%)';
-  } else {
-    badge.innerText = 'Neutral Baseline';
-  }
-
-  recalculateAll();
-}
-
 function onCohortChange() {
   activeCohortKey = document.getElementById('cohortSelector').value;
   updateCohortLabels();
@@ -206,7 +183,7 @@ async function loadProfile(name) {
     document.getElementById('activeMinutes').value = activeMinutes;
     document.getElementById('activeMinsDisplay').innerText = activeMinutes;
     renderSliders();
-    setMood(profile.mood); // triggers recalculation
+    recalculateAll();
   } catch (err) {
     showApiError(err.message);
   }
@@ -410,6 +387,22 @@ function drawRadarChart(subScores) {
     ctx.fill();
   });
 }
+
+/**
+ * DISCLAIMER (shown on every page load; the Info button reopens it)
+ */
+const disclaimerDialog = document.getElementById('disclaimerDialog');
+
+function openDisclaimer() {
+  if (!disclaimerDialog.open) disclaimerDialog.showModal();
+}
+
+// Clicking the backdrop (outside the dialog box) closes it
+disclaimerDialog.addEventListener('click', e => {
+  if (e.target === disclaimerDialog) disclaimerDialog.close();
+});
+
+openDisclaimer();
 
 window.onload = async function() {
   try {

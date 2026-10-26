@@ -51,7 +51,7 @@ Example:
 curl -s localhost:8000/api/score -H 'Content-Type: application/json' -d '{
   "values": {"sleep_hours": 5.2, "stress_level": 8.5, "daily_steps": 4200, "heart_rate": 84,
              "endurance_level": 6.8, "bmi": 27.5, "hydration_level": 1.6},
-  "sex": "ALL", "mood": "Stressed", "cohort": "HARMONIZED", "age": 38,
+  "sex": "ALL", "cohort": "HARMONIZED", "age": 38,
   "active_minutes": 15, "auto_endurance": true
 }'
 ```
