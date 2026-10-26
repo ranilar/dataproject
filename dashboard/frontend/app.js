@@ -168,11 +168,7 @@ function setMood(mood) {
   moods.forEach(m => {
     const btn = document.getElementById(`moodBtn_${m}`);
     if (!btn) return;
-    if (m === mood) {
-      btn.className = 'mood-btn flex items-center justify-center gap-2 p-2 rounded-xl border-2 border-sky-500 bg-sky-50 dark:bg-sky-950/40 text-xs font-bold text-sky-800 dark:text-sky-200 shadow-sm transition';
-    } else {
-      btn.className = 'mood-btn flex items-center justify-center gap-2 p-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-400 text-xs font-semibold text-slate-700 dark:text-slate-300 transition';
-    }
+    btn.className = m === mood ? 'mood-btn mood-btn-active' : 'mood-btn';
   });
 
   const badge = document.getElementById('moodEffectBadge');
@@ -235,28 +231,28 @@ function renderSliders() {
 
   PARAM_SPECS.forEach(p => {
     const card = document.createElement('div');
-    card.className = 'bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-200/70 dark:border-slate-800 transition-all';
+    card.className = 'py-2.5';
     card.id = `card_${p.id}`;
 
     const isEnduranceLocked = (p.id === 'endurance_level' && autoCalculateEndurance);
     const formattedMean = formatMean(p.id, cohortMeans[p.id] || 0);
 
     card.innerHTML = `
-      <div class="flex items-center justify-between gap-2 mb-1">
-        <div class="flex items-center gap-1.5">
-          <label for="input_${p.id}" class="text-xs font-bold text-slate-800 dark:text-slate-100">${p.name}</label>
-          ${isEnduranceLocked ? '<span class="text-[9px] font-mono bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-1 rounded">Auto</span>' : ''}
-          <span class="text-[10px] text-slate-400 font-normal">(${p.hint})</span>
+      <div class="flex items-baseline justify-between gap-2">
+        <div>
+          <label for="input_${p.id}" class="text-sm font-medium">${p.name}</label>
+          ${isEnduranceLocked ? '<span class="text-xs text-slate-500 dark:text-slate-400">(auto)</span>' : ''}
+          <span class="block text-xs text-slate-500 dark:text-slate-400">${p.hint}</span>
         </div>
-        <div class="text-right">
-          <span id="display_${p.id}" class="font-mono text-sm font-bold text-sky-600 dark:text-sky-400">
+        <div class="text-right whitespace-nowrap">
+          <span id="display_${p.id}" class="font-mono text-sm font-semibold">
             ${p.id === 'daily_steps' ? Math.round(currentValues[p.id]).toLocaleString() : currentValues[p.id].toFixed(1)}
           </span>
-          <span class="text-[11px] text-slate-500 dark:text-slate-400">${p.unit}</span>
+          <span class="text-xs text-slate-500 dark:text-slate-400">${p.unit}</span>
         </div>
       </div>
 
-      <div class="mt-1">
+      <div>
         <input
           type="range"
           id="input_${p.id}"
@@ -269,9 +265,9 @@ function renderSliders() {
         />
       </div>
 
-      <div class="flex justify-between items-center mt-1 text-[10px] text-slate-400 font-mono">
+      <div class="flex justify-between items-center text-[11px] text-slate-500 dark:text-slate-400 font-mono">
         <span>${p.id === 'daily_steps' ? p.min.toLocaleString() : p.min}</span>
-        <span class="text-slate-500 font-sans font-medium">Dataset mean: ${formattedMean}</span>
+        <span class="font-sans">Dataset mean: ${formattedMean}</span>
         <span>${p.id === 'daily_steps' ? p.max.toLocaleString() : p.max}</span>
       </div>
     `;
@@ -297,11 +293,11 @@ function updateSubScoresUI(subScores) {
     row.className = 'space-y-1';
     row.innerHTML = `
       <div class="flex justify-between items-center text-xs">
-        <span class="font-medium text-slate-700 dark:text-slate-300">${p.name}</span>
-        <span class="font-mono font-bold text-slate-800 dark:text-slate-200">${score.toFixed(0)} <span class="text-slate-400 font-normal">/100</span></span>
+        <span>${p.name}</span>
+        <span class="font-mono">${score.toFixed(0)}</span>
       </div>
-      <div class="w-full h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
-        <div class="${barColor} h-full rounded-full transition-all duration-300" style="width: ${score}%"></div>
+      <div class="w-full h-1.5 bg-slate-200 dark:bg-slate-800">
+        <div class="${barColor} h-full" style="width: ${score}%"></div>
       </div>
     `;
     container.appendChild(row);
@@ -317,11 +313,10 @@ function updatePercentilesTable(percentiles) {
     const data = percentiles[p.id];
 
     const tr = document.createElement('tr');
-    tr.className = 'hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors';
     tr.innerHTML = `
-      <td class="py-1.5 text-slate-700 dark:text-slate-300 font-sans font-medium">${p.name}</td>
-      <td class="py-1.5 text-sky-600 dark:text-sky-400 font-bold">${formatMean(p.id, val)} ${p.unit}</td>
-      <td class="py-1.5 text-slate-400">${formatMean(p.id, data.mean)}</td>
+      <td class="py-1.5 font-sans">${p.name}</td>
+      <td class="py-1.5 font-semibold">${formatMean(p.id, val)} ${p.unit}</td>
+      <td class="py-1.5 text-slate-500 dark:text-slate-400">${formatMean(p.id, data.mean)}</td>
       <td class="py-1.5 text-slate-500 dark:text-slate-400">${data.z > 0 ? '+' : ''}${data.z.toFixed(2)}σ</td>
       <td class="py-1.5 text-right text-slate-500 dark:text-slate-400">
         ${data.pct.toFixed(0)}th %ile
@@ -335,8 +330,8 @@ function updateBehavioralROI(roi) {
   const recElement = document.getElementById('roiText');
   if (roi) {
     recElement.innerHTML = `
-      <strong>Highest-Leverage Habit:</strong> Focus on <span class="text-sky-600 dark:text-sky-400 font-bold">${roi.label}</span>.
-      This adjustment yields an estimated <strong class="text-slate-900 dark:text-white">+${roi.gain.toFixed(1)} points</strong> improvement to the overall score.
+      <strong>Highest-Leverage Habit:</strong> Focus on <strong>${roi.label}</strong>.
+      This adjustment yields an estimated <strong>+${roi.gain.toFixed(1)} points</strong> improvement to the overall score.
     `;
   } else {
     recElement.innerHTML = `
