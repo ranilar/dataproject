@@ -40,8 +40,7 @@ def config():
     return {
         "params": [{k: v for k, v in p.items() if k != "weight"} for p in PARAM_SPECS],
         "cohorts": {
-            key: {"name": c["name"], "count": c["count"], "means": {pid: s["mean"] for pid, s in c["stats"].items()},
-                  "ranges": c["ranges"]}
+            key: {"name": c["name"], "count": c["count"], "means": {pid: s["mean"] for pid, s in c["stats"].items()}}
             for key, c in COHORTS.items()
         },
         "profiles": list(PROFILES),

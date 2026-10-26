@@ -1,7 +1,5 @@
 """Compute the dataset statistics the dashboard uses and write them to app/dataset_stats.json.
 
-- ranges: observed min/max of each metric per dataset (used to shade the sliders and to
-  decide when a percentile would be extrapolation)
 - medians: per-metric medians of the combined data (used as the sliders' starting values)
 
 Run from dashboard/backend:  python scripts/dataset_stats.py
@@ -41,19 +39,10 @@ def load_dataset2():
     return out[METRICS]
 
 
-def ranges(df):
-    result = {}
-    for m in METRICS:
-        col = pd.to_numeric(df[m], errors="coerce").dropna()
-        result[m] = [round(float(col.min()), 2), round(float(col.max()), 2)] if len(col) else None
-    return result
-
-
 def main():
     d1, d2 = load_dataset1(), load_dataset2()
     combined = pd.concat([d1, d2], ignore_index=True)
     stats = {
-        "ranges": {"CLINICAL": ranges(d1), "WEARABLE": ranges(d2), "HARMONIZED": ranges(combined)},
         "medians": {m: round(float(pd.to_numeric(combined[m], errors="coerce").median()), 2) for m in METRICS},
         "rows": {"CLINICAL": len(d1), "WEARABLE": len(d2), "HARMONIZED": len(combined)},
     }

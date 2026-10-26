@@ -189,11 +189,22 @@ def _weighted_base(vals, sex):
     return sum(sub_score(p["id"], vals[p["id"]], sex) * p["weight"] for p in PARAM_SPECS)
 
 
+# Single habit changes tried one at a time, in both directions; on a tie the earlier one wins
 ROI_CANDIDATES = [
-    {"id": "sleep_hours", "delta": 1.0, "label": "extending sleep duration by +1.0 hr"},
-    {"id": "stress_level", "delta": -1.5, "label": "mitigating stress towards 2.5 stress"},
-    {"id": "daily_steps", "delta": 2500, "label": "bringing daily steps into the 7k–10k zone for moderate activity goals"},
-    {"id": "hydration_level", "delta": 0.6, "label": "increasing daily hydration"},
+    {"id": "sleep_hours", "delta": 1.0, "label": "sleeping 1 hour more"},
+    {"id": "sleep_hours", "delta": -1.0, "label": "sleeping 1 hour less"},
+    {"id": "stress_level", "delta": 1.0, "label": "raising stress by 1 point"},
+    {"id": "stress_level", "delta": -1.0, "label": "lowering stress by 1 point"},
+    {"id": "daily_steps", "delta": 2000, "label": "walking 2,000 more steps a day"},
+    {"id": "daily_steps", "delta": -2000, "label": "walking 2,000 fewer steps a day"},
+    {"id": "hydration_level", "delta": 0.5, "label": "drinking 0.5 L more water a day"},
+    {"id": "hydration_level", "delta": -0.5, "label": "drinking 0.5 L less water a day"},
+    {"id": "heart_rate", "delta": 5, "label": "raising resting heart rate by 5 bpm"},
+    {"id": "heart_rate", "delta": -5, "label": "lowering resting heart rate by 5 bpm"},
+    {"id": "endurance_level", "delta": 2.0, "label": "improving aerobic endurance by 2 points"},
+    {"id": "endurance_level", "delta": -2.0, "label": "lowering aerobic endurance by 2 points"},
+    {"id": "bmi", "delta": 1.0, "label": "raising BMI by 1 point"},
+    {"id": "bmi", "delta": -1.0, "label": "lowering BMI by 1 point"},
 ]
 
 

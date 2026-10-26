@@ -39,19 +39,6 @@
     #disclaimerDialog { max-width: 34rem; width: calc(100% - 2rem); border: 1px solid #cbd5e1; border-radius: 8px; padding: 0; }
     #disclaimerDialog::backdrop { background: rgba(15, 23, 42, 0.4); }
 
-    /* Shaded band behind each slider: the range the selected dataset covers */
-    .slider-wrap { position: relative; margin: 6px 0; }
-    .data-band {
-      position: absolute;
-      top: 50%;
-      height: 12px;
-      transform: translateY(-50%);
-      background: #bae6fd;
-      border-radius: 3px;
-      pointer-events: none;
-    }
-    .slider-wrap input[type=range] { position: relative; display: block; margin: 0; }
-
     input[type=range] {
       -webkit-appearance: none;
       appearance: none;
@@ -158,10 +145,6 @@
             <h3 class="section-title">Measurements</h3>
             <button onclick="resetToMedian()" class="btn">Reset</button>
           </div>
-          <p class="text-xs text-slate-500 flex items-center gap-1.5">
-            <span class="inline-block w-5 h-2.5 rounded-sm" style="background: #bae6fd"></span>
-            Shaded part: values that occur in the selected dataset. Sliders start at the dataset median.
-          </p>
           <div id="slidersContainer" class="divide-y divide-slate-200"></div>
         </div>
       </section>

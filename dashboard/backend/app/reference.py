@@ -4,8 +4,8 @@ Ported from website/health_score_website_v4.html. Cohort means/SDs for CLINICAL 
 data/health_fitness_dataset.csv; HARMONIZED and WEARABLE are the values the
 original dashboard hard-coded.
 
-Observed data ranges and the slider starting values (medians) come from dataset_stats.json,
-generated from both data files by scripts/dataset_stats.py.
+The slider starting values (medians) come from dataset_stats.json, generated from both data
+files by scripts/dataset_stats.py.
 """
 
 import json
@@ -99,10 +99,6 @@ PARAM_SPECS = [
 for _p in PARAM_SPECS:
     _steps = round((DATASET_STATS["medians"][_p["id"]] - _p["min"]) / _p["step"])
     _p["default"] = round(_p["min"] + _steps * _p["step"], 2)
-
-# Observed min/max per dataset; None when the dataset does not measure the metric
-for _key, _cohort in COHORTS.items():
-    _cohort["ranges"] = DATASET_STATS["ranges"][_key]
 
 PARAM_IDS = [p["id"] for p in PARAM_SPECS]
 SPECS_BY_ID = {p["id"]: p for p in PARAM_SPECS}

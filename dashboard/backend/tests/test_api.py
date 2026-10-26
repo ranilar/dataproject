@@ -64,12 +64,6 @@ def test_defaults_are_dataset_medians():
     assert 80 <= score().json()["score"] <= 90  # a typical person, not a perfect 100
 
 
-def test_config_has_dataset_ranges():
-    ranges = client.get("/api/config").json()["cohorts"]
-    assert ranges["CLINICAL"]["ranges"]["bmi"] == [18.5, 24.9]
-    assert ranges["WEARABLE"]["ranges"]["endurance_level"] is None  # Dataset 2 has no endurance
-
-
 def test_hydration_target_depends_on_sex():
     assert score(sex="M").json()["hydration_target"]["target"] == 3.7
     assert score(sex="F").json()["hydration_target"]["target"] == 2.7
@@ -97,3 +91,18 @@ def test_frontend_served_at_root():
     res = client.get("/")
     assert res.status_code == 200
     assert "app.js" in res.text
+
+
+@pytest.mark.parametrize("change, label", [
+    ({"sleep_hours": 10.5}, "sleeping 1 hour less"),
+    ({"stress_level": 1.0}, "raising stress by 1 point"),
+    ({"hydration_level": 4.5}, "drinking 0.5 L less water a day"),
+])
+def test_recommendation_can_go_in_either_direction(change, label):
+    healthy = {**DEFAULTS, "stress_level": 2.5, "endurance_level": 18.5, "heart_rate": 58}
+    assert score(values={**healthy, **change}).json()["roi"]["label"] == label
+
+
+def test_no_recommendation_when_all_optimal():
+    optimal = {**DEFAULTS, "stress_level": 2.5, "endurance_level": 18.5, "heart_rate": 58, "bmi": 23.0, "hydration_level": 3.1}
+    assert score(values=optimal).json()["roi"] is None

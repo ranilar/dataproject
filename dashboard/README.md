@@ -57,7 +57,7 @@ curl -s localhost:8000/api/score -H 'Content-Type: application/json' -d '{
 
 ## Dataset statistics
 
-The observed data ranges (the shaded part of each slider) and the sliders' starting values (dataset medians) are read from `backend/app/dataset_stats.json`. Regenerate it from the two data files with:
+The sliders' starting values (dataset medians) are read from `backend/app/dataset_stats.json`. Regenerate it from the two data files with:
 
 ```bash
 cd dashboard/backend
@@ -78,7 +78,7 @@ cd dashboard/backend
 
 ## What is visible to users
 
-The browser receives the markup, `app.js`, slider ranges, cohort means and every API response. Scoring weights, cohort SDs, curve shapes, alert thresholds and the endurance formula stay on the server. If this GitHub repository is public, the backend source is still readable there.
+The browser receives the markup, `app.js`, slider ranges, cohort means and every API response. Scoring weights, cohort SDs, curve shapes and alert thresholds stay on the server. If this GitHub repository is public, the backend source is still readable there.
 
 ## Data caveats
 
