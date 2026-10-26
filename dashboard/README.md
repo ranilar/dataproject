@@ -55,6 +55,16 @@ curl -s localhost:8000/api/score -H 'Content-Type: application/json' -d '{
 }'
 ```
 
+## Dataset statistics
+
+The observed data ranges (the shaded part of each slider) and the sliders' starting values (dataset medians) are read from `backend/app/dataset_stats.json`. Regenerate it from the two data files with:
+
+```bash
+cd dashboard/backend
+.venv/bin/pip install -r scripts/requirements.txt   # pandas + openpyxl, only needed for this script
+.venv/bin/python scripts/dataset_stats.py
+```
+
 ## Deploy
 
 **Single host (simplest).** Deploy `dashboard/backend` to any Python host (Render, Railway, Fly.io, a VM) with the start command `uvicorn app.main:app --host 0.0.0.0 --port $PORT`, from a checkout that includes `dashboard/frontend`. The frontend is served at `/`.

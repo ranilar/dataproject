@@ -174,8 +174,11 @@ function applyPreset(name) {
   loadProfile(name);
 }
 
+// Back to the starting values: the dataset medians
 function resetToMedian() {
-  loadProfile('clinical_med');
+  PARAM_SPECS.forEach(p => currentValues[p.id] = p.default);
+  renderSliders();
+  recalculateAll();
 }
 
 /**
@@ -185,13 +188,24 @@ function renderSliders() {
   const container = document.getElementById('slidersContainer');
   container.innerHTML = '';
   const cohortMeans = COHORTS[activeCohortKey].means;
+  const cohortRanges = COHORTS[activeCohortKey].ranges;
 
   PARAM_SPECS.forEach(p => {
     const card = document.createElement('div');
     card.className = 'py-2.5';
     card.id = `card_${p.id}`;
 
+    const dataRange = cohortRanges[p.id];
     const formattedMean = formatMean(p.id, cohortMeans[p.id] || 0);
+
+    // Shade the part of the slider the selected dataset covers (clamped to the slider's own range)
+    let band = '';
+    if (dataRange) {
+      const toPct = v => (Math.min(Math.max(v, p.min), p.max) - p.min) / (p.max - p.min) * 100;
+      const left = toPct(dataRange[0]);
+      const width = toPct(dataRange[1]) - left;
+      band = `<div class="data-band" style="left: ${left}%; width: ${width}%" title="Dataset range: ${formatMean(p.id, dataRange[0])}–${formatMean(p.id, dataRange[1])}"></div>`;
+    }
 
     card.innerHTML = `
       <div class="flex items-baseline justify-between gap-2">
@@ -207,7 +221,8 @@ function renderSliders() {
         </div>
       </div>
 
-      <div>
+      <div class="slider-wrap">
+        ${band}
         <input
           type="range"
           id="input_${p.id}"
@@ -272,9 +287,7 @@ function updatePercentilesTable(percentiles) {
       <td class="py-1.5 font-semibold">${formatMean(p.id, val)} ${p.unit}</td>
       <td class="py-1.5 text-slate-500">${formatMean(p.id, data.mean)}</td>
       <td class="py-1.5 text-slate-500">${data.z > 0 ? '+' : ''}${data.z.toFixed(2)}σ</td>
-      <td class="py-1.5 text-right text-slate-500">
-        ${data.pct.toFixed(0)}th %ile
-      </td>
+      <td class="py-1.5 text-right text-slate-500">${data.pct.toFixed(0)}th %ile</td>
     `;
     tbody.appendChild(tr);
   });

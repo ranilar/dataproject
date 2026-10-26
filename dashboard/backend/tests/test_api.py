@@ -57,6 +57,19 @@ def test_no_bmi_alert_inside_range():
     assert not any("BMI" in a["description"] for a in score(values={"bmi": 26.0}).json()["alerts"])
 
 
+def test_defaults_are_dataset_medians():
+    params = {p["id"]: p for p in client.get("/api/config").json()["params"]}
+    assert params["sleep_hours"]["default"] == 7.0
+    assert params["stress_level"]["default"] == 5.0
+    assert 80 <= score().json()["score"] <= 90  # a typical person, not a perfect 100
+
+
+def test_config_has_dataset_ranges():
+    ranges = client.get("/api/config").json()["cohorts"]
+    assert ranges["CLINICAL"]["ranges"]["bmi"] == [18.5, 24.9]
+    assert ranges["WEARABLE"]["ranges"]["endurance_level"] is None  # Dataset 2 has no endurance
+
+
 def test_hydration_target_depends_on_sex():
     assert score(sex="M").json()["hydration_target"]["target"] == 3.7
     assert score(sex="F").json()["hydration_target"]["target"] == 2.7

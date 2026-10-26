@@ -1,0 +1,105 @@
+{
+  "ranges": {
+    "CLINICAL": {
+      "sleep_hours": [
+        4.0,
+        10.0
+      ],
+      "stress_level": [
+        1.0,
+        10.0
+      ],
+      "daily_steps": [
+        36.0,
+        17241.0
+      ],
+      "heart_rate": [
+        51.1,
+        87.1
+      ],
+      "endurance_level": [
+        4.53,
+        18.84
+      ],
+      "bmi": [
+        18.5,
+        24.9
+      ],
+      "hydration_level": [
+        1.5,
+        3.5
+      ]
+    },
+    "WEARABLE": {
+      "sleep_hours": [
+        4.0,
+        9.0
+      ],
+      "stress_level": [
+        1.0,
+        10.0
+      ],
+      "daily_steps": [
+        2000.0,
+        19999.0
+      ],
+      "heart_rate": [
+        60.0,
+        99.0
+      ],
+      "endurance_level": null,
+      "bmi": [
+        15.57,
+        51.75
+      ],
+      "hydration_level": [
+        1.5,
+        4.0
+      ]
+    },
+    "HARMONIZED": {
+      "sleep_hours": [
+        4.0,
+        10.0
+      ],
+      "stress_level": [
+        1.0,
+        10.0
+      ],
+      "daily_steps": [
+        36.0,
+        19999.0
+      ],
+      "heart_rate": [
+        51.1,
+        99.0
+      ],
+      "endurance_level": [
+        4.53,
+        18.84
+      ],
+      "bmi": [
+        15.57,
+        51.75
+      ],
+      "hydration_level": [
+        1.5,
+        4.0
+      ]
+    }
+  },
+  "medians": {
+    "sleep_hours": 7.0,
+    "stress_level": 5.0,
+    "daily_steps": 8645.0,
+    "heart_rate": 70.1,
+    "endurance_level": 9.46,
+    "bmi": 21.72,
+    "hydration_level": 2.5
+  },
+  "rows": {
+    "CLINICAL": 687701,
+    "WEARABLE": 36500,
+    "HARMONIZED": 724201
+  }
+}

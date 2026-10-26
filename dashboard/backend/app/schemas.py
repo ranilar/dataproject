@@ -87,6 +87,7 @@ class CohortInfo(BaseModel):
     name: str
     count: int
     means: dict[str, float]
+    ranges: dict[str, Optional[list[float]]]  # observed [min, max] per metric
 
 
 class ConfigResponse(BaseModel):

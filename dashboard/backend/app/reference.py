@@ -3,7 +3,15 @@
 Ported from website/health_score_website_v4.html. Cohort means/SDs for CLINICAL come from
 data/health_fitness_dataset.csv; HARMONIZED and WEARABLE are the values the
 original dashboard hard-coded.
+
+Observed data ranges and the slider starting values (medians) come from dataset_stats.json,
+generated from both data files by scripts/dataset_stats.py.
 """
+
+import json
+from pathlib import Path
+
+DATASET_STATS = json.loads((Path(__file__).parent / "dataset_stats.json").read_text())
 
 COHORTS = {
     "HARMONIZED": {
@@ -52,52 +60,55 @@ COHORTS = {
 PARAM_SPECS = [
     {
         "id": "sleep_hours", "name": "Sleep Duration", "unit": "hrs",
-        "min": 4.0, "max": 11.0, "step": 0.1, "default": 7.8, "weight": 0.20,
+        "min": 4.0, "max": 11.0, "step": 0.1, "weight": 0.20,
         "hint": "Optimal: 7.0–9.0 hrs",
     },
     {
         "id": "stress_level", "name": "Stress Level", "unit": "/10",
-        "min": 1.0, "max": 10.0, "step": 0.5, "default": 2.5, "weight": 0.15,
+        "min": 1.0, "max": 10.0, "step": 0.5, "weight": 0.15,
         "hint": "Optimal: 2.0–3.0 (healthy stress)",
     },
     {
         "id": "daily_steps", "name": "Daily Step Count", "unit": "steps",
-        "min": 2000, "max": 22000, "step": 250, "default": 8500, "weight": 0.15,
+        "min": 2000, "max": 22000, "step": 250, "weight": 0.15,
         "hint": "Optimal: 7,000–10,000 steps",
     },
     {
         "id": "heart_rate", "name": "Resting Heart Rate", "unit": "bpm",
-        "min": 50, "max": 100, "step": 1, "default": 58, "weight": 0.15,
+        "min": 50, "max": 100, "step": 1, "weight": 0.15,
         "hint": "Optimal: ≤ 60 bpm",
     },
     {
         "id": "endurance_level", "name": "Aerobic Endurance", "unit": "pts",
-        "min": 4.0, "max": 20.0, "step": 0.1, "default": 18.2, "weight": 0.15,
+        "min": 4.0, "max": 20.0, "step": 0.1, "weight": 0.15,
         "hint": "Optimal: ≥ 18.0 pts",
     },
     {
         "id": "bmi", "name": "Body Mass Index (BMI)", "unit": "kg/m²",
-        "min": 15.0, "max": 50.0, "step": 0.1, "default": 23.0, "weight": 0.10,
+        "min": 15.0, "max": 50.0, "step": 0.1, "weight": 0.10,
         "hint": "Optimal: 22.0–25.0 kg/m² (<18 or >30 flagged)",
     },
     {
         "id": "hydration_level", "name": "Daily Hydration", "unit": "L",
-        "min": 1.0, "max": 4.5, "step": 0.1, "default": 3.1, "weight": 0.10,
+        "min": 1.0, "max": 4.5, "step": 0.1, "weight": 0.10,
         "hint": "Optimal: 3.7 L (Men) / 2.7 L (Women)",
     },
 ]
+
+# Sliders start at the combined dataset's median, snapped to the slider grid
+for _p in PARAM_SPECS:
+    _steps = round((DATASET_STATS["medians"][_p["id"]] - _p["min"]) / _p["step"])
+    _p["default"] = round(_p["min"] + _steps * _p["step"], 2)
+
+# Observed min/max per dataset; None when the dataset does not measure the metric
+for _key, _cohort in COHORTS.items():
+    _cohort["ranges"] = DATASET_STATS["ranges"][_key]
 
 PARAM_IDS = [p["id"] for p in PARAM_SPECS]
 SPECS_BY_ID = {p["id"]: p for p in PARAM_SPECS}
 
 # Presets. Hydration can depend on the selected sex, so each profile is a function of it.
-# "clinical_med" is what the Reset button loads.
 PROFILES = {
-    "clinical_med": lambda sex: {
-        "values": {"sleep_hours": 7.05, "stress_level": 5.5, "daily_steps": 8628, "heart_rate": 70,
-                   "endurance_level": 9.5, "bmi": 21.7, "hydration_level": 2.5},
-        "active_minutes": 75,
-    },
     "burnout": lambda sex: {
         "values": {"sleep_hours": 5.2, "stress_level": 8.5, "daily_steps": 4200, "heart_rate": 84,
                    "endurance_level": 6.8, "bmi": 27.5, "hydration_level": 1.6},
