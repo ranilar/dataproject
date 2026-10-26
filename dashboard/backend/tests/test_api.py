@@ -35,7 +35,7 @@ def test_default_inputs_score_high():
 
 def test_burnout_profile_triggers_alerts_and_low_score():
     profile = client.get("/api/profiles/burnout").json()
-    res = score(values=profile["values"], active_minutes=profile["active_minutes"])
+    res = score(values=profile["values"])
     body = res.json()
     titles = {a["title"] for a in body["alerts"]}
     assert "Allostatic Burnout & Sleep Debt" in titles
@@ -55,13 +55,6 @@ def test_bmi_concern_alerts(bmi, title):
 
 def test_no_bmi_alert_inside_range():
     assert not any("BMI" in a["description"] for a in score(values={"bmi": 26.0}).json()["alerts"])
-
-
-def test_auto_endurance_overrides_input():
-    on = score(values={"endurance_level": 4.0}, auto_endurance=True).json()
-    off = score(values={"endurance_level": 4.0}, auto_endurance=False).json()
-    assert on["values"]["endurance_level"] != 4.0
-    assert off["values"]["endurance_level"] == 4.0
 
 
 def test_hydration_target_depends_on_sex():

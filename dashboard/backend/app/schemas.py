@@ -26,9 +26,6 @@ class ScoreRequest(StrictModel):
     values: Metrics
     cohort: CohortKey = "HARMONIZED"
     sex: Sex = "ALL"
-    age: int = Field(38, ge=0, le=120)
-    active_minutes: float = Field(75, ge=0, le=1440)
-    auto_endurance: bool = True
 
 
 class Verdict(BaseModel):
@@ -67,7 +64,7 @@ class ScoreResponse(BaseModel):
     score: float
     total_deduction: float
     verdict: Verdict
-    values: Metrics  # effective inputs, incl. auto-computed endurance
+    values: Metrics
     sub_scores: dict[str, float]
     percentiles: dict[str, Percentile]
     alerts: list[Alert]

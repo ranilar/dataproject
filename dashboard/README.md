@@ -1,6 +1,6 @@
 # Health dashboard
 
-The scoring dashboard from `website/health_score_website_v4.html`, split into a static frontend and a FastAPI backend. All scoring logic (sub-scores, weights, alerts, cohort statistics, ROI, endurance estimate) runs on the server; the browser only sends inputs and renders the response.
+The scoring dashboard from `website/health_score_website_v4.html`, split into a static frontend and a FastAPI backend. All scoring logic (sub-scores, weights, alerts, cohort statistics, ROI) runs on the server; the browser only sends inputs and renders the response.
 
 ```
 dashboard/
@@ -51,8 +51,7 @@ Example:
 curl -s localhost:8000/api/score -H 'Content-Type: application/json' -d '{
   "values": {"sleep_hours": 5.2, "stress_level": 8.5, "daily_steps": 4200, "heart_rate": 84,
              "endurance_level": 6.8, "bmi": 27.5, "hydration_level": 1.6},
-  "sex": "ALL", "cohort": "HARMONIZED", "age": 38,
-  "active_minutes": 15, "auto_endurance": true
+  "sex": "ALL", "cohort": "HARMONIZED"
 }'
 ```
 

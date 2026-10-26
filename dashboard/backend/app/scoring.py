@@ -37,14 +37,6 @@ def hydration_target(sex):
     return {"target": 3.1, "low": 2.7, "high": 3.5, "label": "3.1 L (Dataset Norm)"}
 
 
-def physiological_endurance(mins, bmi, age, steps):
-    """Endurance estimate: more steps and active minutes raise it; BMI outside 22–25 and age lower it."""
-    bmi_penalty = (22.0 - bmi) * 0.15 if bmi < 22.0 else (bmi - 25.0) * 0.12 if bmi > 25.0 else 0
-    age_factor = (40 - age) * 0.03
-    pred = 6.2 + (0.045 * mins) + (0.00035 * steps) - bmi_penalty + age_factor
-    return max(4.0, min(20.0, pred))
-
-
 def sub_score(param_id, val, sex):
     """Sub-score (0–100) for one parameter."""
     if param_id == "sleep_hours":
@@ -224,12 +216,9 @@ def behavioral_roi(vals, sex, current_total):
     return best if best and best["gain"] > 0.4 else None
 
 
-def evaluate(values, *, cohort, sex, age, active_minutes, auto_endurance):
+def evaluate(values, *, cohort, sex):
     """Full dashboard evaluation for one set of inputs."""
     vals = dict(values)
-    if auto_endurance:
-        pred = physiological_endurance(active_minutes, vals["bmi"], age, vals["daily_steps"])
-        vals["endurance_level"] = to_fixed(pred, 1)
 
     stats = COHORTS[cohort]["stats"]
     sub_scores = {}

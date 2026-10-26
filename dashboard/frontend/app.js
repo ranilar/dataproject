@@ -10,7 +10,6 @@ let PARAM_SPECS = [];
 let COHORTS = {};
 let activeCohortKey = 'HARMONIZED';
 let userSex = 'ALL'; // 'ALL', 'M', 'F'
-let autoCalculateEndurance = true;
 let userAge = 38;
 let activeMinutes = 75;
 const currentValues = {};
@@ -71,9 +70,6 @@ function recalculateAll() {
       values: currentValues,
       cohort: activeCohortKey,
       sex: userSex,
-      age: userAge,
-      active_minutes: activeMinutes,
-      auto_endurance: autoCalculateEndurance
     })
   })
     .then(result => {
@@ -92,13 +88,6 @@ function recalculateAll() {
 }
 
 function renderResult(result) {
-  if (autoCalculateEndurance) {
-    currentValues.endurance_level = result.values.endurance_level;
-    const display = document.getElementById('display_endurance_level');
-    const input = document.getElementById('input_endurance_level');
-    if (display) display.innerText = currentValues.endurance_level.toFixed(1);
-    if (input) input.value = currentValues.endurance_level;
-  }
   updateScoreIndex(result);
   updateSubScoresUI(result.sub_scores);
   updatePercentilesTable(result.percentiles);
@@ -145,19 +134,11 @@ function onSliderChange(id, value) {
 function onAgeChange(val) {
   userAge = parseInt(val);
   document.getElementById('ageDisplay').innerText = userAge;
-  recalculateAll();
 }
 
 function onActiveMinutesChange(val) {
   activeMinutes = parseInt(val);
   document.getElementById('activeMinsDisplay').innerText = activeMinutes;
-  recalculateAll();
-}
-
-function onAutoEnduranceToggle() {
-  autoCalculateEndurance = document.getElementById('autoEnduranceToggle').checked;
-  renderSliders();
-  recalculateAll();
 }
 
 function onCohortChange() {
@@ -210,14 +191,12 @@ function renderSliders() {
     card.className = 'py-2.5';
     card.id = `card_${p.id}`;
 
-    const isEnduranceLocked = (p.id === 'endurance_level' && autoCalculateEndurance);
     const formattedMean = formatMean(p.id, cohortMeans[p.id] || 0);
 
     card.innerHTML = `
       <div class="flex items-baseline justify-between gap-2">
         <div>
           <label for="input_${p.id}" class="text-sm font-medium">${p.name}</label>
-          ${isEnduranceLocked ? '<span class="text-xs text-slate-500">(auto)</span>' : ''}
           <span class="block text-xs text-slate-500">${p.hint}</span>
         </div>
         <div class="text-right whitespace-nowrap">
@@ -236,7 +215,6 @@ function renderSliders() {
           max="${p.max}"
           step="${p.step}"
           value="${currentValues[p.id]}"
-          ${isEnduranceLocked ? 'disabled' : ''}
           oninput="onSliderChange('${p.id}', this.value)"
         />
       </div>
