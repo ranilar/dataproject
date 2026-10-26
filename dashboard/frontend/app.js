@@ -192,7 +192,6 @@ function onCohortChange() {
 
 function updateCohortLabels() {
   const cohort = COHORTS[activeCohortKey];
-  document.getElementById('cohortSummaryLabel').innerText = `${cohort.name} (N = ${cohort.count.toLocaleString()})`;
   document.getElementById('percentileCohortLabel').innerText = cohort.name;
 }
 
@@ -241,14 +240,14 @@ function renderSliders() {
       <div class="flex items-baseline justify-between gap-2">
         <div>
           <label for="input_${p.id}" class="text-sm font-medium">${p.name}</label>
-          ${isEnduranceLocked ? '<span class="text-xs text-slate-500 dark:text-slate-400">(auto)</span>' : ''}
-          <span class="block text-xs text-slate-500 dark:text-slate-400">${p.hint}</span>
+          ${isEnduranceLocked ? '<span class="text-xs text-slate-500">(auto)</span>' : ''}
+          <span class="block text-xs text-slate-500">${p.hint}</span>
         </div>
         <div class="text-right whitespace-nowrap">
           <span id="display_${p.id}" class="font-mono text-sm font-semibold">
             ${p.id === 'daily_steps' ? Math.round(currentValues[p.id]).toLocaleString() : currentValues[p.id].toFixed(1)}
           </span>
-          <span class="text-xs text-slate-500 dark:text-slate-400">${p.unit}</span>
+          <span class="text-xs text-slate-500">${p.unit}</span>
         </div>
       </div>
 
@@ -265,7 +264,7 @@ function renderSliders() {
         />
       </div>
 
-      <div class="flex justify-between items-center text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+      <div class="flex justify-between items-center text-[11px] text-slate-500 font-mono">
         <span>${p.id === 'daily_steps' ? p.min.toLocaleString() : p.min}</span>
         <span class="font-sans">Dataset mean: ${formattedMean}</span>
         <span>${p.id === 'daily_steps' ? p.max.toLocaleString() : p.max}</span>
@@ -296,7 +295,7 @@ function updateSubScoresUI(subScores) {
         <span>${p.name}</span>
         <span class="font-mono">${score.toFixed(0)}</span>
       </div>
-      <div class="w-full h-1.5 bg-slate-200 dark:bg-slate-800">
+      <div class="w-full h-1.5 bg-slate-200">
         <div class="${barColor} h-full" style="width: ${score}%"></div>
       </div>
     `;
@@ -316,9 +315,9 @@ function updatePercentilesTable(percentiles) {
     tr.innerHTML = `
       <td class="py-1.5 font-sans">${p.name}</td>
       <td class="py-1.5 font-semibold">${formatMean(p.id, val)} ${p.unit}</td>
-      <td class="py-1.5 text-slate-500 dark:text-slate-400">${formatMean(p.id, data.mean)}</td>
-      <td class="py-1.5 text-slate-500 dark:text-slate-400">${data.z > 0 ? '+' : ''}${data.z.toFixed(2)}σ</td>
-      <td class="py-1.5 text-right text-slate-500 dark:text-slate-400">
+      <td class="py-1.5 text-slate-500">${formatMean(p.id, data.mean)}</td>
+      <td class="py-1.5 text-slate-500">${data.z > 0 ? '+' : ''}${data.z.toFixed(2)}σ</td>
+      <td class="py-1.5 text-right text-slate-500">
         ${data.pct.toFixed(0)}th %ile
       </td>
     `;
@@ -351,7 +350,6 @@ function drawRadarChart(subScores) {
   const radius = 88;
   const totalAxes = PARAM_SPECS.length;
   const angleSlice = (Math.PI * 2) / totalAxes;
-  const isDark = document.documentElement.classList.contains('dark');
 
   ctx.clearRect(0, 0, width, height);
 
@@ -365,13 +363,13 @@ function drawRadarChart(subScores) {
       else ctx.lineTo(x, y);
     }
     ctx.closePath();
-    ctx.strokeStyle = isDark ? '#334155' : '#e2e8f0';
+    ctx.strokeStyle = '#e2e8f0';
     ctx.lineWidth = 1;
     ctx.stroke();
   });
 
   ctx.font = '10px Inter, sans-serif';
-  ctx.fillStyle = isDark ? '#94a3b8' : '#64748b';
+  ctx.fillStyle = '#64748b';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
 
@@ -380,7 +378,7 @@ function drawRadarChart(subScores) {
     ctx.beginPath();
     ctx.moveTo(centerX, centerY);
     ctx.lineTo(centerX + Math.cos(angle) * radius, centerY + Math.sin(angle) * radius);
-    ctx.strokeStyle = isDark ? '#334155' : '#e2e8f0';
+    ctx.strokeStyle = '#e2e8f0';
     ctx.stroke();
     ctx.fillText(RADAR_LABELS[p.id] || '', centerX + Math.cos(angle) * (radius + 16), centerY + Math.sin(angle) * (radius + 16));
   });
@@ -411,21 +409,6 @@ function drawRadarChart(subScores) {
     ctx.fillStyle = '#0284c7';
     ctx.fill();
   });
-}
-
-function toggleTheme() {
-  const isDark = document.documentElement.classList.toggle('dark');
-  const icon = document.getElementById('themeIcon');
-  if (isDark) {
-    icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />`;
-  } else {
-    icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />`;
-  }
-  if (lastResult) drawRadarChart(lastResult.sub_scores);
-}
-
-if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-  document.documentElement.classList.add('dark');
 }
 
 window.onload = async function() {

@@ -90,17 +90,9 @@ PARAM_SPECS = [
 PARAM_IDS = [p["id"] for p in PARAM_SPECS]
 SPECS_BY_ID = {p["id"]: p for p in PARAM_SPECS}
 
-def _by_sex(sex, male, female, other):
-    return male if sex == "M" else female if sex == "F" else other
-
-
-# Presets. Hydration depends on the selected sex, so each profile is a function of it.
+# Presets. Hydration can depend on the selected sex, so each profile is a function of it.
+# "clinical_med" is what the Reset button loads.
 PROFILES = {
-    "report_optimal": lambda sex: {
-        "values": {"sleep_hours": 7.8, "stress_level": 2.5, "daily_steps": 8500, "heart_rate": 58,
-                   "bmi": 23.0, "hydration_level": _by_sex(sex, 3.7, 2.7, 3.1), "endurance_level": 18.5},
-        "active_minutes": 80, "mood": "Happy",
-    },
     "clinical_med": lambda sex: {
         "values": {"sleep_hours": 7.05, "stress_level": 5.5, "daily_steps": 8628, "heart_rate": 70,
                    "endurance_level": 9.5, "bmi": 21.7, "hydration_level": 2.5},

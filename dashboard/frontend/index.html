@@ -3,14 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Empirical Health & Longevity Engine</title>
+  <title>Wellness Assessment App</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script>
     tailwind.config = {
-      darkMode: 'class',
       theme: {
         extend: {
           fontFamily: {
@@ -38,9 +37,6 @@
     .btn:hover, .mood-btn:hover { border-color: #64748b; }
     .mood-btn { padding: 6px 0; font-weight: 500; }
     .mood-btn-active { border-color: #0f172a; background: #f1f5f9; font-weight: 600; }
-    .dark .field, .dark .btn, .dark .mood-btn { background: #020617; border-color: #334155; }
-    .dark .btn:hover, .dark .mood-btn:hover { border-color: #94a3b8; }
-    .dark .mood-btn-active { border-color: #e2e8f0; background: #1e293b; }
 
     input[type=range] {
       -webkit-appearance: none;
@@ -83,24 +79,19 @@
     input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 3px #bae6fd; }
     input[type=range]:disabled { opacity: 0.45; }
     input[type=range]:disabled::-webkit-slider-thumb { cursor: not-allowed; }
-    .dark input[type=range]::-webkit-slider-runnable-track { background: #cbd5e1; }
-    .dark input[type=range]::-webkit-slider-thumb { background: #020617; border-color: #cbd5e1; }
-    .dark input[type=range]::-moz-range-track { background: #cbd5e1; }
-    .dark input[type=range]::-moz-range-thumb { background: #020617; border-color: #cbd5e1; }
   </style>
 </head>
-<body class="bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-100 min-h-screen flex flex-col font-sans">
+<body class="bg-white text-slate-900 min-h-screen flex flex-col font-sans">
 
-  <header class="border-b border-slate-300 dark:border-slate-700">
+  <header class="border-b border-slate-300">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
       <div>
-        <h1 class="text-base font-semibold">Empirical Health & Longevity Engine</h1>
-        <p class="text-xs text-slate-500 dark:text-slate-400" id="cohortSummaryLabel">Combined Cohort (N = 724,201)</p>
+        <h1 class="text-base font-semibold">Wellness Assessment App</h1>
       </div>
 
       <div class="flex items-center flex-wrap gap-3 text-xs">
         <label class="flex items-center gap-1.5">
-          <span class="text-slate-500 dark:text-slate-400">Cohort</span>
+          <span class="text-slate-500">Cohort</span>
           <select id="cohortSelector" onchange="onCohortChange()" class="field">
             <option value="HARMONIZED" selected>Combined Cohorts (N=724k)</option>
             <option value="CLINICAL">Dataset 1: Clinical (N=687k)</option>
@@ -109,29 +100,21 @@
         </label>
 
         <div class="flex items-center gap-1">
-          <span class="text-slate-500 dark:text-slate-400 mr-0.5">Presets</span>
-          <button onclick="applyPreset('report_optimal')" title="All metrics at literature optimal targets (100% Score)" class="btn">100% Target</button>
-          <button onclick="applyPreset('clinical_med')" title="Median profile from Dataset 1 (Clinical Telemetry)" class="btn">Clin. Med</button>
+          <span class="text-slate-500 mr-0.5">Examples</span>
           <button onclick="applyPreset('burnout')" title="High stress, short sleep, low activity" class="btn">Burnout</button>
           <button onclick="applyPreset('athlete')" title="High endurance, 15k steps, resting HR 55 bpm" class="btn">Athlete</button>
         </div>
-
-        <button onclick="toggleTheme()" class="btn" title="Toggle Dark/Light Mode" aria-label="Toggle dark/light mode">
-          <svg id="themeIcon" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-          </svg>
-        </button>
       </div>
     </div>
   </header>
 
   <main class="max-w-7xl mx-auto px-4 sm:px-6 py-5 flex-1 w-full">
-    <div id="apiErrorBanner" class="hidden mb-4 p-3 rounded border text-xs bg-rose-50 border-rose-200 text-rose-900 dark:bg-rose-950/40 dark:border-rose-900/60 dark:text-rose-200"></div>
+    <div id="apiErrorBanner" class="hidden mb-4 p-3 rounded border text-xs bg-rose-50 border-rose-200 text-rose-900"></div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-12 border border-slate-300 dark:border-slate-700 rounded-lg">
+    <div class="grid grid-cols-1 lg:grid-cols-12 border border-slate-300 rounded-lg">
 
       <!-- LEFT: inputs -->
-      <section class="lg:col-span-5 p-5 border-b lg:border-b-0 lg:border-r border-slate-300 dark:border-slate-700 space-y-6">
+      <section class="lg:col-span-5 p-5 border-b lg:border-b-0 lg:border-r border-slate-300 space-y-6">
         <h2 class="text-xl font-semibold">Inputs</h2>
 
         <div class="space-y-3">
@@ -157,9 +140,9 @@
         <div class="space-y-2">
           <div class="flex items-baseline justify-between gap-2">
             <h3 class="section-title">Mood</h3>
-            <span id="moodEffectBadge" class="text-xs text-slate-500 dark:text-slate-400">Neutral Baseline</span>
+            <span id="moodEffectBadge" class="text-xs text-slate-500">Neutral Baseline</span>
           </div>
-          <p class="text-xs text-slate-500 dark:text-slate-400">
+          <p class="text-xs text-slate-500">
             Happy adds a +5.0 recovery bonus when sleep and stress are balanced. Sad or Stressed increases burnout penalties by 25%.
           </p>
           <div class="grid grid-cols-4 gap-2">
@@ -181,7 +164,7 @@
               <button onclick="resetToMedian()" class="btn">Reset</button>
             </div>
           </div>
-          <div id="slidersContainer" class="divide-y divide-slate-200 dark:divide-slate-800"></div>
+          <div id="slidersContainer" class="divide-y divide-slate-200"></div>
         </div>
       </section>
 
@@ -197,12 +180,12 @@
         <div>
           <div class="flex items-baseline justify-between gap-2 mb-2">
             <h3 class="section-title">Comparison with data</h3>
-            <span class="text-xs text-slate-500 dark:text-slate-400" id="percentileCohortLabel">Combined Cohorts</span>
+            <span class="text-xs text-slate-500" id="percentileCohortLabel">Combined Cohorts</span>
           </div>
           <div class="overflow-x-auto">
             <table class="w-full text-left text-xs">
               <thead>
-                <tr class="text-slate-500 dark:text-slate-400 border-b border-slate-300 dark:border-slate-700">
+                <tr class="text-slate-500 border-b border-slate-300">
                   <th class="py-1.5 font-medium">Metric</th>
                   <th class="py-1.5 font-medium">Value</th>
                   <th class="py-1.5 font-medium">Cohort Mean</th>
@@ -210,7 +193,7 @@
                   <th class="py-1.5 font-medium text-right">Population %</th>
                 </tr>
               </thead>
-              <tbody id="percentilesTableBody" class="divide-y divide-slate-200 dark:divide-slate-800 font-mono"></tbody>
+              <tbody id="percentilesTableBody" class="divide-y divide-slate-200 font-mono"></tbody>
             </table>
           </div>
         </div>
@@ -218,7 +201,7 @@
         <div>
           <div class="flex items-baseline justify-between gap-2 mb-2">
             <h3 class="section-title">Sub-scores</h3>
-            <span class="text-xs text-slate-500 dark:text-slate-400">0–100</span>
+            <span class="text-xs text-slate-500">0–100</span>
           </div>
           <div id="subScoresList" class="space-y-2"></div>
         </div>
@@ -232,7 +215,7 @@
 
         <div>
           <h3 class="section-title mb-2">Summary</h3>
-          <p id="roiText" class="text-sm leading-relaxed border border-slate-300 dark:border-slate-700 rounded-lg p-3">
+          <p id="roiText" class="text-sm leading-relaxed border border-slate-300 rounded-lg p-3">
             Evaluating behavioral leverage points...
           </p>
         </div>
@@ -242,7 +225,7 @@
   </main>
 
   <footer class="py-4 text-center text-xs text-slate-400">
-    <p>Empirical Health & Longevity Engine • Calibrated against Clinical Telemetry (N=687k) & Longitudinal Wearable Log (N=36.5k)</p>
+    <p>Wellness Assessment App • Calibrated against Clinical Telemetry (N=687k) & Longitudinal Wearable Log (N=36.5k)</p>
   </footer>
 
   <script src="config.js"></script>
