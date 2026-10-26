@@ -58,7 +58,7 @@ PARAM_SPECS = [
     {
         "id": "stress_level", "name": "Stress Level", "unit": "/10",
         "min": 1.0, "max": 10.0, "step": 0.5, "default": 2.5, "weight": 0.15,
-        "hint": "Optimal: 2.0–3.0 (healthy eustress)",
+        "hint": "Optimal: 2.0–3.0 (healthy stress)",
     },
     {
         "id": "daily_steps", "name": "Daily Step Count", "unit": "steps",
