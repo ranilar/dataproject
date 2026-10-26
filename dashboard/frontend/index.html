@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Empirical Health & Longevity Engine v2</title>
+  <title>Empirical Health & Longevity Engine</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,15 +16,6 @@
           fontFamily: {
             sans: ['Inter', 'sans-serif'],
             mono: ['JetBrains Mono', 'monospace'],
-          },
-          colors: {
-            brand: {
-              50: '#f0f9ff',
-              100: '#e0f2fe',
-              500: '#0ea5e9',
-              600: '#0284c7',
-              700: '#0369a1',
-            }
           }
         }
       }
@@ -90,47 +81,45 @@
 <body class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 min-h-screen flex flex-col font-sans transition-colors duration-200">
 
   <!-- Top Navigation Bar -->
-  <header class="bg-white/90 dark:bg-slate-900/90 backdrop-blur border-b border-slate-200 dark:border-slate-800 sticky top-0 z-40">
+  <header class="bg-white/95 dark:bg-slate-900/95 backdrop-blur border-b border-slate-200 dark:border-slate-800 sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-3">
       
-      <!-- Title & Cohort Indicator -->
+      <!-- Brand & Cohort Subtitle -->
       <div class="flex items-center space-x-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 via-indigo-500 to-emerald-500 flex items-center justify-center text-white shadow-md shadow-sky-500/20">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-sky-500 via-indigo-500 to-emerald-500 flex items-center justify-center text-white shadow-md shadow-sky-500/20">
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
           </svg>
         </div>
         <div>
-          <div class="flex items-center gap-2">
-            <h1 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white leading-tight">Empirical Health & Longevity Engine</h1>
-            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 border border-sky-300/40">v2.0</span>
-          </div>
-          <p class="text-[11px] text-slate-500 dark:text-slate-400" id="cohortSummaryLabel">Clinical + Wearable Harmonized Cohort (N = 724,201)</p>
+          <h1 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white leading-tight">Empirical Health & Longevity Engine</h1>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400" id="cohortSummaryLabel">Combined Cohort (N = 724,201)</p>
         </div>
       </div>
 
-      <!-- Cohort Switcher & Actions -->
-      <div class="flex items-center flex-wrap gap-2">
-        <!-- Cohort Calibration Mode Dropdown -->
+      <!-- Cohort Switcher & Quick Profiles -->
+      <div class="flex items-center flex-wrap gap-2.5">
+        <!-- Cohort Switcher -->
         <div class="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl text-xs font-semibold border border-slate-200 dark:border-slate-700">
-          <label for="cohortSelector" class="px-2 text-[11px] text-slate-500 dark:text-slate-400 uppercase tracking-wider font-mono">Cohort:</label>
+          <label for="cohortSelector" class="px-2 text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wider font-mono">Cohort:</label>
           <select id="cohortSelector" onchange="onCohortChange()" class="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 text-xs rounded-lg px-2.5 py-1 font-medium border-0 focus:ring-1 focus:ring-sky-500 shadow-sm cursor-pointer">
-            <option value="HARMONIZED" selected>Harmonized Master (N=724,201)</option>
-            <option value="CLINICAL">Clinical Telemetry (N=687,701)</option>
-            <option value="WEARABLE">Wearable Lifestyle (N=36,500)</option>
+            <option value="HARMONIZED" selected>Combined Cohorts (N=724k)</option>
+            <option value="CLINICAL">Dataset 1: Clinical (N=687k)</option>
+            <option value="WEARABLE">Dataset 2: Wearable (N=36.5k)</option>
           </select>
         </div>
 
-        <!-- Presets -->
-        <div class="hidden sm:flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl text-xs font-medium border border-slate-200 dark:border-slate-700">
-          <button onclick="applyPreset('report_optimal')" class="px-2 py-1 rounded-lg hover:bg-white dark:hover:bg-slate-700 text-emerald-600 dark:text-emerald-400 font-bold transition text-[11px]">100% Target</button>
-          <button onclick="applyPreset('clinical_med')" class="px-2 py-1 rounded-lg hover:bg-white dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition text-[11px]">Clin. Med</button>
-          <button onclick="applyPreset('burnout')" class="px-2 py-1 rounded-lg hover:bg-white dark:hover:bg-slate-700 text-rose-600 dark:text-rose-400 transition text-[11px]">Burnout</button>
-          <button onclick="applyPreset('athlete')" class="px-2 py-1 rounded-lg hover:bg-white dark:hover:bg-slate-700 text-sky-600 dark:text-sky-400 transition text-[11px]">Athlete</button>
+        <!-- Archetype Preset Buttons -->
+        <div class="hidden sm:flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl text-xs font-medium border border-slate-200 dark:border-slate-700 items-center gap-1">
+          <span class="text-[10px] text-slate-400 font-mono px-1">Presets:</span>
+          <button onclick="applyPreset('report_optimal')" title="All metrics at literature optimal targets (100% Score)" class="px-2 py-1 rounded-lg hover:bg-white dark:hover:bg-slate-700 text-emerald-600 dark:text-emerald-400 font-bold transition text-[11px]">100% Target</button>
+          <button onclick="applyPreset('clinical_med')" title="Median profile from Dataset 1 (Clinical Telemetry)" class="px-2 py-1 rounded-lg hover:bg-white dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition text-[11px]">Clin. Med</button>
+          <button onclick="applyPreset('burnout')" title="High stress, short sleep, low activity" class="px-2 py-1 rounded-lg hover:bg-white dark:hover:bg-slate-700 text-rose-600 dark:text-rose-400 transition text-[11px]">Burnout</button>
+          <button onclick="applyPreset('athlete')" title="High endurance, 15k steps, resting HR 55 bpm" class="px-2 py-1 rounded-lg hover:bg-white dark:hover:bg-slate-700 text-sky-600 dark:text-sky-400 transition text-[11px]">Athlete</button>
         </div>
 
-        <!-- Dark Mode Toggle -->
-        <button onclick="toggleTheme()" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 border border-slate-200 dark:border-slate-700 transition" title="Toggle Theme">
+        <!-- Theme Toggle -->
+        <button onclick="toggleTheme()" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 border border-slate-200 dark:border-slate-700 transition" title="Toggle Dark/Light Mode">
           <svg id="themeIcon" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
           </svg>
@@ -139,89 +128,89 @@
     </div>
   </header>
 
-  <!-- Main Application Body -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full">
+  <!-- Main Content Layout -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex-1 w-full">
     <div id="apiErrorBanner" class="hidden mb-4 p-3 rounded-xl border text-xs bg-rose-50 border-rose-200 text-rose-900 dark:bg-rose-950/40 dark:border-rose-900/60 dark:text-rose-200"></div>
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
 
-      <!-- LEFT COLUMN: Demographic, Mood, Biometrics, and Ingestion (7 cols) -->
-      <section class="lg:col-span-7 space-y-5">
+      <!-- LEFT COLUMN: Demographic Context, Mood, Biometrics, and Dataset Ingestion (7 cols) -->
+      <section class="lg:col-span-7 space-y-4">
 
-        <!-- Demographic & Physiological Context Card -->
-        <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
-          <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-100 dark:border-slate-800">
+        <!-- Clean Demographic Context Card -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+          <div class="flex items-center justify-between mb-2.5 pb-2 border-b border-slate-100 dark:border-slate-800">
             <div class="flex items-center gap-2">
               <span class="w-2 h-2 rounded-full bg-sky-500"></span>
-              <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Demographic & Active Context</span>
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">Demographic & Workout Context</span>
             </div>
-            <span class="text-[11px] font-mono text-sky-600 dark:text-sky-400 font-semibold" id="sexTargetBadge">Target: 3.1L H₂O • 50 bpm</span>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Biological Sex (IOM Targets)</label>
+              <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Biological Sex</label>
               <select id="userSex" onchange="onSexChange(this.value)" class="w-full text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 font-medium text-slate-800 dark:text-slate-100 focus:ring-1 focus:ring-sky-500">
-                <option value="ALL">Entire Cohort (Baseline)</option>
-                <option value="M">Male (3.7 L Water Target)</option>
-                <option value="F">Female (2.7 L Water Target)</option>
+                <option value="ALL">All Cohort Baseline</option>
+                <option value="M">Male</option>
+                <option value="F">Female</option>
               </select>
             </div>
             <div>
-              <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Participant Age (<span id="ageDisplay" class="font-mono text-sky-600 dark:text-sky-400 font-bold">38</span> yrs)</label>
+              <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Age (<span id="ageDisplay" class="font-mono text-sky-600 dark:text-sky-400 font-bold">38</span> yrs)</label>
               <input type="range" id="userAge" min="18" max="65" step="1" value="38" oninput="onAgeChange(this.value)">
             </div>
             <div>
-              <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Active Workout (<span id="activeMinsDisplay" class="font-mono text-sky-600 dark:text-sky-400 font-bold">75</span> min)</label>
+              <label class="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">Workout (<span id="activeMinsDisplay" class="font-mono text-sky-600 dark:text-sky-400 font-bold">75</span> min)</label>
               <input type="range" id="activeMinutes" min="0" max="180" step="5" value="75" oninput="onActiveMinutesChange(this.value)">
             </div>
           </div>
         </div>
 
-        <!-- New Feature: Wearable Affective Mood Selector -->
-        <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
-          <div class="flex items-center justify-between mb-3">
-            <div>
-              <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-                <svg class="w-3.5 h-3.5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Affective Mood State (Wearable Daily Log)
-              </h2>
-              <p class="text-[11px] text-slate-400">Modulates parasympathetic recovery tone and allostatic burnout amplification</p>
-            </div>
-            <span id="moodEffectBadge" class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">Neutral</span>
+        <!-- Clean Affective Mood Card with Clear Explanation -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+          <div class="flex items-center justify-between mb-1.5">
+            <h2 class="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Daily Affective Mood State
+            </h2>
+            <span id="moodEffectBadge" class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">Neutral Baseline</span>
           </div>
 
+          <!-- Concise explanation of Mood mechanism -->
+          <p class="text-[11px] text-slate-500 dark:text-slate-400 mb-2.5">
+            <strong>How Mood affects scoring:</strong> Mood acts as an autonomic multiplier. <span class="text-emerald-600 dark:text-emerald-400 font-medium">Happy</span> triggers a <strong class="text-emerald-600">+5.0 recovery bonus</strong> when sleep and stress are balanced. <span class="text-rose-600 dark:text-rose-400 font-medium">Sad</span> or <span class="text-rose-600 dark:text-rose-400 font-medium">Stressed</span> amplifies burnout penalties by <strong class="text-rose-600">+25%</strong>.
+          </p>
+
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            <button type="button" onclick="setMood('Happy')" id="moodBtn_Happy" class="mood-btn flex items-center justify-center gap-2 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-emerald-500 text-xs font-semibold text-slate-700 dark:text-slate-300 transition">
+            <button type="button" onclick="setMood('Happy')" id="moodBtn_Happy" class="mood-btn flex items-center justify-center gap-2 p-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-emerald-500 text-xs font-semibold text-slate-700 dark:text-slate-300 transition">
               <span class="text-base">😊</span>
               <span>Happy</span>
             </button>
-            <button type="button" onclick="setMood('Neutral')" id="moodBtn_Neutral" class="mood-btn flex items-center justify-center gap-2 p-2.5 rounded-xl border-2 border-sky-500 bg-sky-50 dark:bg-sky-950/40 text-xs font-bold text-sky-800 dark:text-sky-200 transition">
+            <button type="button" onclick="setMood('Neutral')" id="moodBtn_Neutral" class="mood-btn flex items-center justify-center gap-2 p-2 rounded-xl border-2 border-sky-500 bg-sky-50 dark:bg-sky-950/40 text-xs font-bold text-sky-800 dark:text-sky-200 transition">
               <span class="text-base">😐</span>
               <span>Neutral</span>
             </button>
-            <button type="button" onclick="setMood('Sad')" id="moodBtn_Sad" class="mood-btn flex items-center justify-center gap-2 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-amber-500 text-xs font-semibold text-slate-700 dark:text-slate-300 transition">
+            <button type="button" onclick="setMood('Sad')" id="moodBtn_Sad" class="mood-btn flex items-center justify-center gap-2 p-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-amber-500 text-xs font-semibold text-slate-700 dark:text-slate-300 transition">
               <span class="text-base">😔</span>
               <span>Sad</span>
             </button>
-            <button type="button" onclick="setMood('Stressed')" id="moodBtn_Stressed" class="mood-btn flex items-center justify-center gap-2 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-rose-500 text-xs font-semibold text-slate-700 dark:text-slate-300 transition">
+            <button type="button" onclick="setMood('Stressed')" id="moodBtn_Stressed" class="mood-btn flex items-center justify-center gap-2 p-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-rose-500 text-xs font-semibold text-slate-700 dark:text-slate-300 transition">
               <span class="text-base">⚡</span>
               <span>Stressed</span>
             </button>
           </div>
         </div>
 
-        <!-- Interactive Sliders Container -->
-        <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
-          <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+        <!-- Clean Interactive Sliders Container -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3">
+          <div class="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
             <div>
-              <h2 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white">Expanded Harmonized Biometric Sliders</h2>
-              <p class="text-xs text-slate-500">Supports full population BMI range (15–50 kg/m²) and clinical-to-wearable heart rates</p>
+              <h2 class="text-sm font-bold text-slate-900 dark:text-white">Biometric & Activity Sliders</h2>
+              <p class="text-[11px] text-slate-400">Continuous scoring curves calibrated to clinical literature</p>
             </div>
             <div class="flex items-center gap-3">
-              <!-- Auto-calculate Endurance Toggle -->
-              <label class="flex items-center gap-1.5 cursor-pointer text-xs font-medium text-slate-700 dark:text-slate-300">
+              <label class="flex items-center gap-1.5 cursor-pointer text-xs font-medium text-slate-600 dark:text-slate-300" title="Calculates endurance from active workout minutes and steps">
                 <input type="checkbox" id="autoEnduranceToggle" onchange="onAutoEnduranceToggle()" checked class="w-3.5 h-3.5 text-sky-600 rounded border-slate-300 focus:ring-sky-500">
                 <span class="text-[11px]">Auto Ridge Endurance</span>
               </label>
@@ -229,14 +218,14 @@
             </div>
           </div>
 
-          <div id="slidersContainer" class="space-y-3.5">
-            <!-- Dynamically populated via JS -->
+          <div id="slidersContainer" class="space-y-2.5">
+            <!-- Dynamically populated via JS with clean minimalist styling -->
           </div>
         </div>
 
         <!-- High-Impact Behavioral ROI Recommendation Card -->
-        <div class="bg-gradient-to-br from-sky-50 to-indigo-50 dark:from-slate-900 dark:to-slate-800/80 rounded-2xl p-4 sm:p-5 border border-sky-100 dark:border-slate-800 shadow-sm">
-          <div class="flex items-center justify-between mb-2">
+        <div class="bg-gradient-to-br from-sky-50 to-indigo-50 dark:from-slate-900 dark:to-slate-800/80 rounded-2xl p-4 border border-sky-100 dark:border-slate-800 shadow-sm">
+          <div class="flex items-center justify-between mb-1.5">
             <h3 class="text-xs font-bold uppercase tracking-wider text-sky-900 dark:text-sky-300 flex items-center gap-1.5">
               <svg class="w-4 h-4 text-sky-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
@@ -250,65 +239,56 @@
           </p>
         </div>
 
-        <!-- CSV / Wearable Log Quick Test Simulator -->
-        <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
+        <!-- De-bloated Dataset Sample Comparison Section -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
           <div class="flex items-center justify-between mb-2">
             <div>
-              <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
                 <svg class="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
-                Wearable Log Ingestion & Sample Simulator
+                Compare Real Cohort Records
               </h3>
-              <p class="text-[11px] text-slate-400">Instantly test arbitrary records from either dataset to audit score performance</p>
+              <p class="text-[11px] text-slate-400">Load sample daily logs from Dataset 1 (Clinical) and Dataset 2 (Wearable) to compare against population percentiles.</p>
             </div>
-            <span class="text-[10px] font-mono text-emerald-600 dark:text-emerald-400">Live Parser</span>
           </div>
 
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
-            <button onclick="loadSampleLog('user12')" class="text-left p-2 rounded-xl bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 transition">
-              <span class="text-[11px] font-bold block text-slate-800 dark:text-slate-200">User #12 (Wearable)</span>
-              <span class="text-[10px] text-slate-400">Active Day • Happy</span>
+          <!-- 4 Clean Benchmark Profile Pills -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-2">
+            <button onclick="loadSampleLog('csv1042')" class="text-left p-2 rounded-xl bg-slate-50 dark:bg-slate-800/80 hover:bg-sky-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 transition">
+              <span class="text-[11px] font-bold block text-slate-800 dark:text-slate-200">Clinical #1042</span>
+              <span class="text-[10px] text-emerald-600 dark:text-emerald-400">Athlete • HR 56 bpm</span>
             </button>
-            <button onclick="loadSampleLog('user47')" class="text-left p-2 rounded-xl bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 transition">
-              <span class="text-[11px] font-bold block text-slate-800 dark:text-slate-200">User #47 (Wearable)</span>
-              <span class="text-[10px] text-slate-400">Sleep Deficit • BMI 34</span>
+            <button onclick="loadSampleLog('csv2890')" class="text-left p-2 rounded-xl bg-slate-50 dark:bg-slate-800/80 hover:bg-sky-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 transition">
+              <span class="text-[11px] font-bold block text-slate-800 dark:text-slate-200">Clinical #2890</span>
+              <span class="text-[10px] text-rose-600 dark:text-rose-400">Stress 9 • Sleep 4.8h</span>
             </button>
-            <button onclick="loadSampleLog('csv1042')" class="text-left p-2 rounded-xl bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 transition">
-              <span class="text-[11px] font-bold block text-slate-800 dark:text-slate-200">CSV #1042 (Clinical)</span>
-              <span class="text-[10px] text-slate-400">Athlete • HR 56</span>
+            <button onclick="loadSampleLog('user12')" class="text-left p-2 rounded-xl bg-slate-50 dark:bg-slate-800/80 hover:bg-sky-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 transition">
+              <span class="text-[11px] font-bold block text-slate-800 dark:text-slate-200">Wearable #12</span>
+              <span class="text-[10px] text-sky-600 dark:text-sky-400">Active Day • Happy</span>
             </button>
-            <button onclick="loadSampleLog('csv2890')" class="text-left p-2 rounded-xl bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 transition">
-              <span class="text-[11px] font-bold block text-slate-800 dark:text-slate-200">CSV #2890 (Clinical)</span>
-              <span class="text-[10px] text-slate-400">Stress 9 • Sleep 4.8h</span>
+            <button onclick="loadSampleLog('user47')" class="text-left p-2 rounded-xl bg-slate-50 dark:bg-slate-800/80 hover:bg-sky-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 transition">
+              <span class="text-[11px] font-bold block text-slate-800 dark:text-slate-200">Wearable #47</span>
+              <span class="text-[10px] text-amber-600 dark:text-amber-400">Sleep Deficit • BMI 34</span>
             </button>
-          </div>
-
-          <div class="text-[11px] text-slate-500 dark:text-slate-400">
-            <strong>Drop / Paste CSV or JSON:</strong>
-            <input type="text" id="rawLogInput" placeholder='{"Hours_Slept": 6.8, "Steps_Taken": 9400, "Heart_Rate": 74, "Mood": "Happy"}' class="w-full mt-1 px-3 py-1.5 text-xs font-mono bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-sky-500">
-            <div class="flex justify-between items-center gap-2 mt-1.5">
-              <span id="parseLogStatus" class="text-[11px] font-mono"></span>
-              <button onclick="parseAndInjectLog()" class="px-3 py-1 rounded-lg bg-sky-600 hover:bg-sky-700 text-white text-xs font-medium transition shadow-sm">Parse & Simulate Record</button>
-            </div>
           </div>
         </div>
 
       </section>
 
-      <!-- RIGHT COLUMN: Gauge, Alerts, Radar Chart, Sub-scores & Percentiles (5 cols) -->
-      <section class="lg:col-span-5 space-y-5 lg:sticky lg:top-16">
+      <!-- RIGHT COLUMN: Score Ring, Synergy Alerts, Radar Chart, Sub-scores & Percentiles (5 cols) -->
+      <section class="lg:col-span-5 space-y-4 lg:sticky lg:top-16">
 
         <!-- Primary Composite Score Ring Card -->
-        <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-md">
-          <div class="flex items-center justify-between mb-2">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-md">
+          <div class="flex items-center justify-between mb-1">
             <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Composite Health Index</span>
             <span id="scoreBadge" class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700">Calibrating...</span>
           </div>
 
           <!-- Gauge and Number -->
-          <div class="flex flex-col items-center justify-center my-3">
-            <div class="relative w-48 h-48 flex items-center justify-center">
+          <div class="flex flex-col items-center justify-center my-2">
+            <div class="relative w-44 h-44 flex items-center justify-center">
               <svg class="w-full h-full transform -rotate-90" viewBox="0 0 160 160">
                 <defs>
                   <linearGradient id="scoreGradientEmerald" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -328,43 +308,43 @@
                     <stop offset="100%" stop-color="#f43f5e" />
                   </linearGradient>
                 </defs>
-                <circle cx="80" cy="80" r="68" stroke="currentColor" stroke-width="13" fill="transparent" class="text-slate-100 dark:text-slate-800" />
-                <circle id="scoreGaugeCircle" cx="80" cy="80" r="68" stroke="url(#scoreGradientSky)" stroke-width="13" fill="transparent"
+                <circle cx="80" cy="80" r="68" stroke="currentColor" stroke-width="12" fill="transparent" class="text-slate-100 dark:text-slate-800" />
+                <circle id="scoreGaugeCircle" cx="80" cy="80" r="68" stroke="url(#scoreGradientSky)" stroke-width="12" fill="transparent"
                   stroke-dasharray="427.2" stroke-dashoffset="427.2" stroke-linecap="round"
                   class="gauge-circle" />
               </svg>
               <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
                 <span id="mainScoreValue" class="text-5xl font-extrabold tracking-tight font-mono text-slate-900 dark:text-white">--</span>
-                <span class="text-[10px] text-slate-400 font-semibold tracking-wider mt-1">INDEX 0–100</span>
+                <span class="text-[10px] text-slate-400 font-semibold tracking-wider mt-0.5">INDEX 0–100</span>
               </div>
             </div>
 
-            <h3 id="verdictHeadline" class="mt-3 text-base font-bold text-slate-800 dark:text-slate-100">Harmonized Equilibrium</h3>
-            <p id="verdictSubtext" class="text-xs text-slate-500 dark:text-slate-400 text-center max-w-xs mt-1">Calibrated against clinical vitals & commercial wearable continuous distributions.</p>
+            <h3 id="verdictHeadline" class="mt-2 text-base font-bold text-slate-800 dark:text-slate-100">Harmonized Equilibrium</h3>
+            <p id="verdictSubtext" class="text-xs text-slate-500 dark:text-slate-400 text-center max-w-xs mt-0.5">Calibrated against clinical vitals and wearable cohort distributions.</p>
           </div>
 
-          <!-- Cross-Parameter Synergies & Alerts -->
-          <div id="alertsContainer" class="mt-4 space-y-2">
-            <!-- Dynamic alerts -->
+          <!-- Cross-Parameter Synergies, Warnings & BMI Health Concern Alerts -->
+          <div id="alertsContainer" class="mt-3 space-y-2">
+            <!-- Dynamic alerts inserted via JS -->
           </div>
         </div>
 
         <!-- Radar Balance Visualization Canvas -->
-        <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
-          <div class="flex items-center justify-between mb-2">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+          <div class="flex items-center justify-between mb-1">
             <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Physiological Equilibrium Radar</h3>
             <span class="text-[11px] font-mono text-slate-400">7 Core Pillars</span>
           </div>
           <div class="flex justify-center items-center">
-            <canvas id="radarCanvas" width="290" height="270" class="w-full max-w-[290px] h-auto"></canvas>
+            <canvas id="radarCanvas" width="280" height="250" class="w-full max-w-[280px] h-auto"></canvas>
           </div>
         </div>
 
         <!-- Pillar Sub-Scores List -->
-        <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
-          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center justify-between">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2.5 flex items-center justify-between">
             <span>Domain Sub-Scores</span>
-            <span class="text-[10px] font-mono text-slate-400">Normalized 0–100</span>
+            <span class="text-[10px] font-mono text-slate-400">0–100 Scale</span>
           </h3>
           <div id="subScoresList" class="space-y-2">
             <!-- Dynamic subscores -->
@@ -372,10 +352,10 @@
         </div>
 
         <!-- Cohort Percentile Comparison Table -->
-        <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-sm text-xs">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm text-xs">
           <div class="flex items-center justify-between mb-2">
             <h4 class="font-bold text-slate-900 dark:text-white">Active Cohort Percentiles</h4>
-            <span class="text-[10px] font-mono text-sky-600 dark:text-sky-400" id="percentileCohortLabel">Master Cohort</span>
+            <span class="text-[10px] font-mono text-sky-600 dark:text-sky-400" id="percentileCohortLabel">Combined Cohorts</span>
           </div>
           <div class="overflow-x-auto">
             <table class="w-full text-left text-xs">
@@ -400,8 +380,8 @@
     </div>
   </main>
 
-  <footer class="mt-8 border-t border-slate-200 dark:border-slate-800 py-4 text-center text-xs text-slate-400">
-    <p>Empirical Health & Longevity Engine v2 • Harmonized Clinical Telemetry (N=687,701) & Wearable Longitudinal Log (N=36,500)</p>
+  <footer class="mt-6 border-t border-slate-200 dark:border-slate-800 py-4 text-center text-xs text-slate-400">
+    <p>Empirical Health & Longevity Engine • Calibrated against Clinical Telemetry (N=687k) & Longitudinal Wearable Log (N=36.5k)</p>
   </footer>
 
   <script src="config.js"></script>

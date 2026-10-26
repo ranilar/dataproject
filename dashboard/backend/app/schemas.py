@@ -85,7 +85,7 @@ class ParamSpec(BaseModel):
     max: float
     step: float
     default: float
-    info: str
+    hint: str
 
 
 class CohortInfo(BaseModel):
@@ -104,13 +104,3 @@ class Profile(BaseModel):
     values: dict[str, float]  # partial: sample logs omit endurance
     active_minutes: float
     mood: Mood
-
-
-class ParseLogRequest(StrictModel):
-    raw: str = Field(max_length=10_000)
-
-
-class ParsedLog(BaseModel):
-    values: dict[str, float]
-    active_minutes: Optional[float]
-    mood: Optional[Mood]

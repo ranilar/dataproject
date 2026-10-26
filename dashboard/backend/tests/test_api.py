@@ -44,6 +44,19 @@ def test_burnout_profile_triggers_alerts_and_low_score():
     assert body["roi"] is not None
 
 
+@pytest.mark.parametrize("bmi, title", [
+    (17.5, "Underweight Clinical Concern"),
+    (32.0, "Obesity Class Health Concern"),
+])
+def test_bmi_concern_alerts(bmi, title):
+    alerts = score(values={"bmi": bmi}).json()["alerts"]
+    assert [a["title"] for a in alerts if a["type"] == "danger"] == [title]
+
+
+def test_no_bmi_alert_inside_range():
+    assert not any("BMI" in a["description"] for a in score(values={"bmi": 26.0}).json()["alerts"])
+
+
 def test_auto_endurance_overrides_input():
     on = score(values={"endurance_level": 4.0}, auto_endurance=True).json()
     off = score(values={"endurance_level": 4.0}, auto_endurance=False).json()
@@ -71,24 +84,6 @@ def test_profile_hydration_by_sex_and_unknown_profile():
     assert client.get("/api/profiles/report_optimal?sex=M").json()["values"]["hydration_level"] == 3.7
     assert client.get("/api/profiles/report_optimal?sex=F").json()["values"]["hydration_level"] == 2.7
     assert client.get("/api/profiles/nope").status_code == 404
-
-
-def test_parse_log_json_and_csv():
-    res = client.post("/api/parse-log", json={"raw": '{"Hours_Slept": 6.8, "Steps_Taken": 9400, "Heart_Rate": 74, "Mood": "Happy"}'})
-    assert res.json() == {
-        "values": {"sleep_hours": 6.8, "daily_steps": 9400, "heart_rate": 74},
-        "active_minutes": None,
-        "mood": "Happy",
-    }
-    res = client.post("/api/parse-log", json={"raw": "7.5, 8000, 65, 4, 23.1"})
-    assert res.json()["values"] == {"sleep_hours": 7.5, "daily_steps": 8000, "heart_rate": 65, "stress_level": 4, "bmi": 23.1}
-
-
-@pytest.mark.parametrize("raw", ["{not json", "[1, 2]", "1, 2", '{"Mood": "Angry"}', '{"Hours_Slept": "abc"}', "{}"])
-def test_parse_log_errors(raw):
-    res = client.post("/api/parse-log", json={"raw": raw})
-    assert res.status_code == 422
-    assert isinstance(res.json()["detail"], str)
 
 
 def test_frontend_served_at_root():

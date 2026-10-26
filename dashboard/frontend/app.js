@@ -108,7 +108,6 @@ function renderResult(result) {
     if (display) display.innerText = currentValues.endurance_level.toFixed(1);
     if (input) input.value = currentValues.endurance_level;
   }
-  updateHydrationTarget(result.hydration_target);
   updateMainScoreGauge(result);
   updateSubScoresUI(result.sub_scores);
   updateAlertsUI(result.alerts);
@@ -127,16 +126,6 @@ function formatValue(id, val) {
 
 function formatMean(id, val) {
   return id === 'daily_steps' ? Math.round(val).toLocaleString() : val.toFixed(1);
-}
-
-/**
- * HYDRATION TARGET (badge + slider hint come from the API)
- */
-function updateHydrationTarget(target) {
-  const badge = document.getElementById('sexTargetBadge');
-  if (badge) badge.innerText = `Target: ${target.target}L H₂O • 50 bpm RHR`;
-  const info = document.getElementById('info_hydration_level');
-  if (info) info.innerText = `Optimal: ${target.label}. Literature standard (Report §11.1 - IOM [7]).`;
 }
 
 /**
@@ -188,18 +177,18 @@ function setMood(mood) {
     const btn = document.getElementById(`moodBtn_${m}`);
     if (!btn) return;
     if (m === mood) {
-      btn.className = 'mood-btn flex items-center justify-center gap-2 p-2.5 rounded-xl border-2 border-sky-500 bg-sky-50 dark:bg-sky-950/40 text-xs font-bold text-sky-800 dark:text-sky-200 shadow-sm transition';
+      btn.className = 'mood-btn flex items-center justify-center gap-2 p-2 rounded-xl border-2 border-sky-500 bg-sky-50 dark:bg-sky-950/40 text-xs font-bold text-sky-800 dark:text-sky-200 shadow-sm transition';
     } else {
-      btn.className = 'mood-btn flex items-center justify-center gap-2 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-400 text-xs font-semibold text-slate-700 dark:text-slate-300 transition';
+      btn.className = 'mood-btn flex items-center justify-center gap-2 p-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-slate-400 text-xs font-semibold text-slate-700 dark:text-slate-300 transition';
     }
   });
 
   const badge = document.getElementById('moodEffectBadge');
   if (mood === 'Happy') {
-    badge.innerText = 'Neuro-Recovery Active';
+    badge.innerText = 'Recovery Bonus Active (+5 pts)';
     badge.className = 'text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-300/40';
   } else if (mood === 'Stressed' || mood === 'Sad') {
-    badge.innerText = 'Allostatic Strain +25%';
+    badge.innerText = 'Burnout Multiplier Active (+25%)';
     badge.className = 'text-[10px] font-mono px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 border border-rose-300/40';
   } else {
     badge.innerText = 'Neutral Baseline';
@@ -252,63 +241,27 @@ function resetToMedian() {
 }
 
 /**
- * WEARABLE LOG INGESTION (parsed by the API)
- */
-async function parseAndInjectLog() {
-  const raw = document.getElementById('rawLogInput').value.trim();
-  const status = document.getElementById('parseLogStatus');
-  if (!raw) return;
-
-  try {
-    const parsed = await api('/api/parse-log', { method: 'POST', body: JSON.stringify({ raw }) });
-    Object.assign(currentValues, parsed.values);
-    if (parsed.active_minutes !== null) {
-      activeMinutes = parsed.active_minutes;
-      document.getElementById('activeMinutes').value = activeMinutes;
-      document.getElementById('activeMinsDisplay').innerText = activeMinutes;
-    }
-    status.className = 'text-[11px] font-mono text-emerald-600 dark:text-emerald-400';
-    status.textContent = `Parsed ${Object.keys(parsed.values).length} field(s)`;
-    renderSliders();
-    if (parsed.mood !== null) {
-      setMood(parsed.mood); // triggers recalculation
-    } else {
-      recalculateAll();
-    }
-  } catch (err) {
-    status.className = 'text-[11px] font-mono text-rose-600 dark:text-rose-400';
-    status.textContent = err.message;
-  }
-}
-
-/**
  * RENDERING
  */
 function renderSliders() {
   const container = document.getElementById('slidersContainer');
   container.innerHTML = '';
   const cohortMeans = COHORTS[activeCohortKey].means;
-  const hydTarget = lastResult && lastResult.hydration_target;
 
   PARAM_SPECS.forEach(p => {
     const card = document.createElement('div');
-    card.className = 'bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-800 transition-all';
+    card.className = 'bg-slate-50 dark:bg-slate-800/60 p-3 rounded-xl border border-slate-200/70 dark:border-slate-800 transition-all';
     card.id = `card_${p.id}`;
 
     const isEnduranceLocked = (p.id === 'endurance_level' && autoCalculateEndurance);
     const formattedMean = formatMean(p.id, cohortMeans[p.id] || 0);
 
-    let dynamicInfo = p.info;
-    if (p.id === 'hydration_level' && hydTarget) {
-      dynamicInfo = `Optimal: ${hydTarget.label}. Literature standard (Report §11.1 - IOM [7]).`;
-    }
-
     card.innerHTML = `
       <div class="flex items-center justify-between gap-2 mb-1">
         <div class="flex items-center gap-1.5">
           <label for="input_${p.id}" class="text-xs font-bold text-slate-800 dark:text-slate-100">${p.name}</label>
-          ${isEnduranceLocked ? '<span class="text-[9px] font-mono bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 px-1 rounded">Ridge Auto</span>' : ''}
-          ${p.id === 'hydration_level' ? `<span class="text-[9px] font-mono bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 px-1 rounded">${userSex === 'M' ? '3.7L Male' : userSex === 'F' ? '2.7L Female' : '3.1L Baseline'}</span>` : ''}
+          ${isEnduranceLocked ? '<span class="text-[9px] font-mono bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 px-1 rounded">Auto</span>' : ''}
+          <span class="text-[10px] text-slate-400 font-normal">(${p.hint})</span>
         </div>
         <div class="text-right">
           <span id="display_${p.id}" class="font-mono text-sm font-bold text-sky-600 dark:text-sky-400">
@@ -317,8 +270,6 @@ function renderSliders() {
           <span class="text-[11px] text-slate-500 dark:text-slate-400">${p.unit}</span>
         </div>
       </div>
-
-      <p id="info_${p.id}" class="text-[10px] text-slate-400 mb-1.5 leading-tight">${dynamicInfo}</p>
 
       <div class="mt-1">
         <input
@@ -334,9 +285,9 @@ function renderSliders() {
       </div>
 
       <div class="flex justify-between items-center mt-1 text-[10px] text-slate-400 font-mono">
-        <span>Min: ${p.id === 'daily_steps' ? p.min.toLocaleString() : p.min}</span>
+        <span>${p.id === 'daily_steps' ? p.min.toLocaleString() : p.min}</span>
         <span class="text-slate-500 font-sans font-medium">Cohort μ: ${formattedMean}</span>
-        <span>Max: ${p.id === 'daily_steps' ? p.max.toLocaleString() : p.max}</span>
+        <span>${p.id === 'daily_steps' ? p.max.toLocaleString() : p.max}</span>
       </div>
     `;
     container.appendChild(card);
@@ -444,11 +395,11 @@ function updateBehavioralROI(roi) {
   if (roi) {
     recElement.innerHTML = `
       <strong>Highest-Leverage Habit:</strong> Focus on <span class="text-sky-600 dark:text-sky-400 font-bold">${roi.label}</span>.
-      This single adjustment yields an estimated <strong class="text-emerald-600 dark:text-emerald-400">+${roi.gain.toFixed(1)} points</strong> composite improvement by unlocking autonomic synergy and resolving biological bottlenecks.
+      This adjustment yields an estimated <strong class="text-emerald-600 dark:text-emerald-400">+${roi.gain.toFixed(1)} points</strong> improvement to the overall score.
     `;
   } else {
     recElement.innerHTML = `
-      <strong>Well-Balanced Equilibrium:</strong> Your physiological parameters are harmoniously balanced according to literature benchmarks. Maintaining current habits will preserve optimal vitality.
+      <strong>Well-Balanced Equilibrium:</strong> Your physiological parameters are currently balanced.
     `;
   }
 }
@@ -461,7 +412,7 @@ function drawRadarChart(subScores) {
   const height = canvas.height;
   const centerX = width / 2;
   const centerY = height / 2;
-  const radius = 95;
+  const radius = 88;
   const totalAxes = PARAM_SPECS.length;
   const angleSlice = (Math.PI * 2) / totalAxes;
   const isDark = document.documentElement.classList.contains('dark');
@@ -495,7 +446,7 @@ function drawRadarChart(subScores) {
     ctx.lineTo(centerX + Math.cos(angle) * radius, centerY + Math.sin(angle) * radius);
     ctx.strokeStyle = isDark ? '#334155' : '#e2e8f0';
     ctx.stroke();
-    ctx.fillText(RADAR_LABELS[p.id] || '', centerX + Math.cos(angle) * (radius + 18), centerY + Math.sin(angle) * (radius + 18));
+    ctx.fillText(RADAR_LABELS[p.id] || '', centerX + Math.cos(angle) * (radius + 16), centerY + Math.sin(angle) * (radius + 16));
   });
 
   const point = (p, i) => {

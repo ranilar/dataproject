@@ -1,21 +1,20 @@
 # Health dashboard
 
-The scoring dashboard from `website/website.v2.html`, split into a static frontend and a FastAPI backend. All scoring logic (sub-scores, weights, alerts, cohort statistics, ROI, endurance estimate, log parsing) runs on the server; the browser only sends inputs and renders the response.
+The scoring dashboard from `website/health_score_website_v4.html`, split into a static frontend and a FastAPI backend. All scoring logic (sub-scores, weights, alerts, cohort statistics, ROI, endurance estimate) runs on the server; the browser only sends inputs and renders the response.
 
 ```
 dashboard/
 ├── backend/
 │   ├── app/
 │   │   ├── main.py         # FastAPI app: routes, CORS, serves ../frontend
-│   │   ├── scoring.py      # scoring engine (port of the v2 JS)
+│   │   ├── scoring.py      # scoring engine (port of the v4 JS)
 │   │   ├── reference.py    # cohort stats, slider specs, presets / sample logs
-│   │   ├── log_parser.py   # JSON / CSV wearable-log parser
 │   │   └── schemas.py      # request / response models
 │   ├── tests/
 │   ├── requirements.txt
 │   └── requirements-dev.txt
 └── frontend/
-    ├── index.html          # v2 markup
+    ├── index.html          # v4 markup
     ├── app.js              # UI state, API calls, rendering
     └── config.js           # API base URL
 ```
@@ -45,7 +44,6 @@ Tests:
 | GET | `/api/config` | Slider specs, cohort names / counts / means, profile names |
 | GET | `/api/profiles/{name}?sex=ALL\|M\|F` | Preset or sample log values |
 | POST | `/api/score` | Composite score, sub-scores, alerts, percentiles, ROI, effective inputs |
-| POST | `/api/parse-log` | Parse a pasted JSON / CSV log into input values |
 
 Example:
 

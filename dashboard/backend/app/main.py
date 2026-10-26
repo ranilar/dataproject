@@ -6,12 +6,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from . import scoring
-from .log_parser import LogParseError, parse_log
 from .reference import COHORTS, PARAM_SPECS, PROFILES
 from .schemas import (
     ConfigResponse,
-    ParsedLog,
-    ParseLogRequest,
     Profile,
     ScoreRequest,
     ScoreResponse,
@@ -69,14 +66,6 @@ def score(req: ScoreRequest):
         active_minutes=req.active_minutes,
         auto_endurance=req.auto_endurance,
     )
-
-
-@app.post("/api/parse-log", response_model=ParsedLog)
-def parse(req: ParseLogRequest):
-    try:
-        return parse_log(req.raw)
-    except LogParseError as e:
-        raise HTTPException(422, str(e))
 
 
 # Serve the frontend from the same origin when it sits next to the backend (local dev / single-host deploy).
