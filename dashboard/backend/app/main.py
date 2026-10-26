@@ -49,7 +49,7 @@ def config():
 
 @app.get("/api/profiles/{name}", response_model=Profile)
 def profile(name: str, sex: Sex = "ALL"):
-    """A preset or sample log; hydration depends on the selected sex."""
+    """A preset profile; hydration depends on the selected sex."""
     if name not in PROFILES:
         raise HTTPException(404, f"Unknown profile: {name}")
     return PROFILES[name](sex)

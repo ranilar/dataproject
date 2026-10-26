@@ -94,9 +94,8 @@ def _by_sex(sex, male, female, other):
     return male if sex == "M" else female if sex == "F" else other
 
 
-# Presets and sample logs. Hydration depends on the selected sex, so each profile is a function of it.
+# Presets. Hydration depends on the selected sex, so each profile is a function of it.
 PROFILES = {
-    # Presets
     "report_optimal": lambda sex: {
         "values": {"sleep_hours": 7.8, "stress_level": 2.5, "daily_steps": 8500, "heart_rate": 58,
                    "bmi": 23.0, "hydration_level": _by_sex(sex, 3.7, 2.7, 3.1), "endurance_level": 18.5},
@@ -116,26 +115,5 @@ PROFILES = {
         "values": {"sleep_hours": 8.2, "stress_level": 2.5, "daily_steps": 14500, "heart_rate": 54,
                    "endurance_level": 19.0, "bmi": 22.5, "hydration_level": 4.0 if sex == "M" else 3.2},
         "active_minutes": 110, "mood": "Happy",
-    },
-    # Sample logs
-    "user12": lambda sex: {
-        "values": {"sleep_hours": 7.8, "daily_steps": 9450, "heart_rate": 60, "stress_level": 2.5,
-                   "bmi": 23.5, "hydration_level": 3.7 if sex == "M" else 2.7},
-        "active_minutes": 80, "mood": "Happy",
-    },
-    "user47": lambda sex: {
-        "values": {"sleep_hours": 5.4, "daily_steps": 5100, "heart_rate": 86, "stress_level": 7.5,
-                   "bmi": 34.2, "hydration_level": 2.0},
-        "active_minutes": 20, "mood": "Sad",
-    },
-    "csv1042": lambda sex: {
-        "values": {"sleep_hours": 8.1, "daily_steps": 9200, "heart_rate": 56, "stress_level": 2.0,
-                   "bmi": 22.4, "hydration_level": 3.8 if sex == "M" else 2.8},
-        "active_minutes": 95, "mood": "Happy",
-    },
-    "csv2890": lambda sex: {
-        "values": {"sleep_hours": 4.8, "daily_steps": 4100, "heart_rate": 82, "stress_level": 9.0,
-                   "bmi": 24.1, "hydration_level": 1.8},
-        "active_minutes": 10, "mood": "Stressed",
     },
 }

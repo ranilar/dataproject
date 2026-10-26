@@ -101,6 +101,6 @@ class ConfigResponse(BaseModel):
 
 
 class Profile(BaseModel):
-    values: dict[str, float]  # partial: sample logs omit endurance
+    values: dict[str, float]
     active_minutes: float
     mood: Mood

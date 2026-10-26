@@ -101,7 +101,7 @@ function renderResult(result) {
     if (display) display.innerText = currentValues.endurance_level.toFixed(1);
     if (input) input.value = currentValues.endurance_level;
   }
-  updateMainScoreGauge(result);
+  updateScoreIndex(result);
   updateSubScoresUI(result.sub_scores);
   updatePercentilesTable(result.percentiles);
   updateBehavioralROI(result.roi);
@@ -201,7 +201,7 @@ function updateCohortLabels() {
 }
 
 /**
- * PRESETS & SAMPLE LOGS (served by the API as "profiles")
+ * PRESETS (served by the API as "profiles")
  */
 async function loadProfile(name) {
   try {
@@ -218,10 +218,6 @@ async function loadProfile(name) {
 }
 
 function applyPreset(name) {
-  loadProfile(name);
-}
-
-function loadSampleLog(name) {
   loadProfile(name);
 }
 
@@ -275,7 +271,7 @@ function renderSliders() {
 
       <div class="flex justify-between items-center mt-1 text-[10px] text-slate-400 font-mono">
         <span>${p.id === 'daily_steps' ? p.min.toLocaleString() : p.min}</span>
-        <span class="text-slate-500 font-sans font-medium">Cohort μ: ${formattedMean}</span>
+        <span class="text-slate-500 font-sans font-medium">Dataset mean: ${formattedMean}</span>
         <span>${p.id === 'daily_steps' ? p.max.toLocaleString() : p.max}</span>
       </div>
     `;
@@ -283,17 +279,8 @@ function renderSliders() {
   });
 }
 
-function updateMainScoreGauge(result) {
-  const circle = document.getElementById('scoreGaugeCircle');
-
-  const maxOffset = 427.2;
-  circle.style.strokeDashoffset = maxOffset - (result.score / 100) * maxOffset;
-  document.getElementById('mainScoreValue').innerText = result.score.toFixed(1);
-
-  const badge = document.getElementById('scoreBadge');
-  badge.innerText = `${result.score.toFixed(0)} / 100 Index`;
-  document.getElementById('verdictHeadline').innerText = result.verdict.title;
-  document.getElementById('verdictSubtext').innerText = result.verdict.description;
+function updateScoreIndex(result) {
+  document.getElementById('scoreIndex').innerText = `${result.score.toFixed(0)} / 100 Index`;
 }
 
 function updateSubScoresUI(subScores) {

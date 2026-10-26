@@ -8,7 +8,7 @@ dashboard/
 │   ├── app/
 │   │   ├── main.py         # FastAPI app: routes, CORS, serves ../frontend
 │   │   ├── scoring.py      # scoring engine (port of the v4 JS)
-│   │   ├── reference.py    # cohort stats, slider specs, presets / sample logs
+│   │   ├── reference.py    # cohort stats, slider specs, presets
 │   │   └── schemas.py      # request / response models
 │   ├── tests/
 │   ├── requirements.txt
@@ -42,7 +42,7 @@ Tests:
 | --- | --- | --- |
 | GET | `/api/health` | Liveness check |
 | GET | `/api/config` | Slider specs, cohort names / counts / means, profile names |
-| GET | `/api/profiles/{name}?sex=ALL\|M\|F` | Preset or sample log values |
+| GET | `/api/profiles/{name}?sex=ALL\|M\|F` | Preset values |
 | POST | `/api/score` | Composite score, sub-scores, alerts, percentiles, ROI, effective inputs |
 
 Example:
